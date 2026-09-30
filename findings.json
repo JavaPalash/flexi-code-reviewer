@@ -1,0 +1,572 @@
+[
+  {
+    "id": "F-001",
+    "parameter": "Hardcoding and Latest Library Version Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SELF_DETAILS_WS",
+    "location": "Properties (_wsurl)",
+    "issue": "Hardcoded outdated API version in URL path: ${ORACLE_FUSION_URL}/hcmRestApi/resources/11.13.18.05/selfDetails.",
+    "fix": "Replace 11.13.18.05 with latest (/hcmRestApi/resources/latest/selfDetails) to ensure compatibility with modern Fusion HCM REST versions."
+  },
+  {
+    "id": "F-002",
+    "parameter": "Hardcoding and Latest Library Version Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onPageEntered (lines 14–15)",
+    "issue": "Deprecated/outdated REST Framework Version 2 explicitly set for PO_DESC_LINE_WEBSERVICE and PO_LINE_WEBSERVICE: addRequestHeader(\"REST-Framework-Version\", \"2\").",
+    "fix": "Upgrade header to Oracle standard REST-Framework-Version: 4 (or latest supported framework version)."
+  },
+  {
+    "id": "F-003",
+    "parameter": "Hardcoding and Latest Library Version Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "LOCATOR_FILTER_WS",
+    "location": "_onCallingRequest (line 1)",
+    "issue": "Deprecated/outdated REST Framework Version 2 explicitly set: LOCATOR_FILTER_WS.addRequestHeader(\"REST-FRAMEWORK-VERSION\",\"2\").",
+    "fix": "Standardize and update header to REST-Framework-Version: 4."
+  },
+  {
+    "id": "F-004",
+    "parameter": "Hardcoding and Latest Library Version Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "LPN_WEBSERVICE, SUBINV_WEBSERVICE, LOCATOR_WEBSERVICE, LPN_INV_WS, ITEM_REVISION_WS",
+    "location": "_onCallingRequest / _onFocus",
+    "issue": "Inconsistent REST Framework version: sets version 3 across these services while other services use 2.",
+    "fix": "Standardize all Oracle Fusion REST services to a consistent version (REST-Framework-Version: 4)."
+  },
+  {
+    "id": "F-005",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEMS_V2",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Standalone backend API called from script without limit, onlyData=true, or fields. Fetches full unpaginated catalog data.",
+    "fix": "Add &onlyData=true&limit=10&fields=ItemId,ItemNumber,ItemDescription to _request."
+  },
+  {
+    "id": "F-006",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "LPN_INV_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit: Standalone backend verification API called in LPN._onExit without limit parameter.",
+    "fix": "Add &limit=10 to _request."
+  },
+  {
+    "id": "F-007",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_LINE_WEBSERVICE_V2",
+    "location": "Properties (_request)",
+    "issue": "No Limit: Script-executed lines query lacks limit parameter.",
+    "fix": "Add &limit=100 to _request."
+  },
+  {
+    "id": "F-008",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "RANGE_SERIAL_NUMBER_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit: Standalone serial range query lacks limit parameter.",
+    "fix": "Add &limit=500 to _request."
+  },
+  {
+    "id": "F-009",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_NUMBER_WEBSERVICE",
+    "location": "Properties (_request)",
+    "issue": "No Limit: Standalone serial query lacks limit parameter.",
+    "fix": "Add &limit=500 to _request."
+  },
+  {
+    "id": "F-010",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_TOLERANCE_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit: Standalone schedule tolerance query called in ITEM_NUMBER._onExit lacks limit parameter.",
+    "fix": "Add &limit=10 to _request."
+  },
+  {
+    "id": "F-011",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ORG_BU_WEBSERVICE",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Standalone query q=OrganizationId=${ORACLE_SCM_ORG_ID} lacks limit, onlyData=true, and fields.",
+    "fix": "Add &onlyData=true&limit=1&fields=OrganizationId,ManagementBusinessUnitId to _request."
+  },
+  {
+    "id": "F-012",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ORG_PARAM_WEBSERVICE",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Child endpoint .../invOrgParameters has empty _request fetching all fields and metadata without pagination.",
+    "fix": "Add fields=OrganizationId,NegativeInventoryFlag,LocatorControl&onlyData=true&limit=1 to _request."
+  },
+  {
+    "id": "F-013",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_DEFAULT_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Child endpoint .../distributions has empty request string.",
+    "fix": "Add fields=DistributionId,POHeaderId,POLineId&onlyData=true&limit=50 to _request."
+  },
+  {
+    "id": "F-014",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_TRANSACTION_DEAFAULT_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit & Missing Fields: Query q=...;DefaultType=2&onlyData=true lacks limit and fields projection.",
+    "fix": "Add &limit=10&fields=SubinventoryCode,LocatorId to _request."
+  },
+  {
+    "id": "F-015",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_LINE_DTLS_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Child endpoint .../schedules has empty request string.",
+    "fix": "Add fields=LineLocationId,ShipToLocationId,Quantity&onlyData=true&limit=50 to _request."
+  },
+  {
+    "id": "F-016",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_LINE_CHILD_SCH_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Dynamic child URL ${PO_LINE_CHILD__URL_OBJ} has empty request string.",
+    "fix": "Add fields=LineLocationId,Quantity&onlyData=true&limit=50 to _request."
+  },
+  {
+    "id": "F-017",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_LINE_PRJ_DFF_WS",
+    "location": "Properties (_request)",
+    "issue": "No Limit, Missing OnlyData, Missing Fields: Dynamic DFF URL ${PO_LINE_PRJDFF_URL} has empty request string.",
+    "fix": "Add onlyData=true&limit=50&fields=... specifying only required DFF attributes."
+  },
+  {
+    "id": "F-018",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SELF_DETAILS_WS",
+    "location": "Properties (_request / _wsurl)",
+    "issue": "Deprecated API, No Limit, Missing OnlyData, Missing Fields: Deprecated version 11.13.18.05 and empty request string.",
+    "fix": "Upgrade to latest and configure onlyData=true&fields=PersonId,PersonNumber&limit=1."
+  },
+  {
+    "id": "F-019",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_REVISION_WS",
+    "location": "Properties (_request)",
+    "issue": "Missing OnlyData & Missing Fields: LOV-bound service lacks onlyData=true and fields projection.",
+    "fix": "Add &onlyData=true&fields=RevisionCode,EffectivityDate to _request."
+  },
+  {
+    "id": "F-020",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "RECEIPT_TRAN_WEBSERVICE",
+    "location": "Properties (_restOperation)",
+    "issue": "HTTP Operation Mismatch: Default operation is GET, but endpoint is /receivingReceiptRequests which expects POST with ${PAYLOAD}.",
+    "fix": "Explicitly set _restOperation to POST."
+  },
+  {
+    "id": "F-021",
+    "parameter": "API Structure",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "POST_PRINT_WEBSERVICE",
+    "location": "Properties (_restOperation)",
+    "issue": "HTTP Operation Mismatch: Default operation is GET, but endpoint is /Print with payload ${PRINT_PAYLOAD}.",
+    "fix": "Explicitly set _restOperation to POST."
+  },
+  {
+    "id": "F-022",
+    "parameter": "LOV Field Smart Search Enablement",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SHIP_LOC",
+    "location": "Properties",
+    "issue": "Smart search is not configured/enabled (_smartSearch missing). LOV field 'SHIP_LOC' cannot perform real-time prefix filtering.",
+    "fix": "Enable smart search on LOV 'SHIP_LOC' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."
+  },
+  {
+    "id": "F-023",
+    "parameter": "LOV Field Smart Search Enablement",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PRINTER",
+    "location": "Properties",
+    "issue": "Smart search is not configured/enabled (_smartSearch missing). LOV field 'PRINTER' cannot perform real-time prefix filtering.",
+    "fix": "Enable smart search on LOV 'PRINTER' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."
+  },
+  {
+    "id": "F-024",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PROJECT_NUMBER",
+    "location": "_onFocus (line 6)",
+    "issue": "Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().",
+    "fix": "Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."
+  },
+  {
+    "id": "F-025",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PROJECT_NUMBER",
+    "location": "_onFocus (line 7)",
+    "issue": "Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().",
+    "fix": "Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."
+  },
+  {
+    "id": "F-026",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "TASK_NUMBER",
+    "location": "_onFocus (line 5)",
+    "issue": "Unused/Dead Component & Invalid Reference: TASK_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component TASK_LOV.reset().",
+    "fix": "Remove this unused component from the screen definition entirely."
+  },
+  {
+    "id": "F-027",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onSpecialKeyPressed (line 82)",
+    "issue": "Unsafe chained call: REM_SR_QTY.getValue().replace(\".0\", \"\"). If REM_SR_QTY.getValue() returns null, throws NullPointerException.",
+    "fix": "Add null check: String remQty = REM_SR_QTY.getValue(); flexi.putObject(\"QTY_SR\", remQty != null ? remQty.replace(\".0\", \"\") : \"0\");"
+  },
+  {
+    "id": "F-028",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onSpecialKeyPressed (lines 34, 36, 57, 63, 67, 86, 89, 90, 94)",
+    "issue": "Direct result.getString(\"...\") calls without verifying result.has(\"...\") (e.g. ReturnStatus, LotNumber, StartSerialNumber, EndSerialNumber, ReturnMessageText).",
+    "fix": "Guard with result.has(\"key\") before reading, or use result.optString(\"key\", \"\")."
+  },
+  {
+    "id": "F-029",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_TYPE",
+    "location": "_onExit (line 2)",
+    "issue": "Malformed check: if(SERIAL_TYPE.getValue().length () > 0 && SERIAL_TYPE.getValue().length () != null). Primitive int cannot be compared to null, and .length() throws NPE if getValue() is null.",
+    "fix": "Replace with if (SERIAL_TYPE.getValue() != null && !SERIAL_TYPE.getValue().trim().isEmpty())."
+  },
+  {
+    "id": "F-030",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_TYPE",
+    "location": "_onExit (line 4)",
+    "issue": "Unsafe method call on object: flexi.getObject(\"SERIAL_CONTROL_CODE\").equals(\"5\"). Throws NPE if SERIAL_CONTROL_CODE is null.",
+    "fix": "Invert comparison: \"5\".equals(flexi.getObject(\"SERIAL_CONTROL_CODE\"))."
+  },
+  {
+    "id": "F-031",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (line 82)",
+    "issue": "Unsafe chained call: flexi.getObject(\"REVISION_CONTROL_FLAG\").toString(). Throws NPE if object is null.",
+    "fix": "Check for null: Object revFlag = flexi.getObject(\"REVISION_CONTROL_FLAG\"); if (\"true\".equals(revFlag != null ? revFlag.toString() : \"\"))."
+  },
+  {
+    "id": "F-032",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_NUM",
+    "location": "_onExit (line 22)",
+    "issue": "Unsafe array item retrieval: orgArray.get(0).get(\"ManagementBusinessUnitId\") without checking orgArray.length() > 0 or validating index 0.",
+    "fix": "Check if (orgArray != null && orgArray.length() > 0) before indexing."
+  },
+  {
+    "id": "F-033",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_NUMBER",
+    "location": "_onExit (lines 13, 31)",
+    "issue": "Unsafe .toString() on JSON element: serialArray.get(i).get(\"FromSerialNumber\").toString();. Throws NPE if value is null.",
+    "fix": "Use optString(\"FromSerialNumber\") or verify nullness before calling .toString()."
+  },
+  {
+    "id": "F-034",
+    "parameter": "Object Reference Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_NUMBER",
+    "location": "_onExit (lines 68, 71)",
+    "issue": "Unsafe Double.parseDouble(REM_LOT_QTY.getValue()) and Double.parseDouble(REM_SR_QTY.getValue()) without null or empty validation.",
+    "fix": "Validate getValue() != null && !getValue().trim().isEmpty() before parsing."
+  },
+  {
+    "id": "F-035",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onSpecialKeyPressed (lines 32–33)",
+    "issue": "API call GENERATE_LOT_WS.callWebService(null); and JSON parsing new org.json.JSONObject(...) are not enclosed in a try-catch block.",
+    "fix": "Wrap in try-catch; on failure, alert user with flexi.setStatusMessage(...)."
+  },
+  {
+    "id": "F-036",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onSpecialKeyPressed (lines 75, 101)",
+    "issue": "Swallowed exceptions: catch (Exception e) { logger.trace(\"Exception while generating Serial: \"+ e); }. Only traces error and silently continues, leaving user in an unhandled state.",
+    "fix": "Log logger.error(\"Serial generation error\", e); and display flexi.setStatusMessage(\"Serial generation failed: \" + e.getMessage());."
+  },
+  {
+    "id": "F-037",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_NUM",
+    "location": "_onExit (lines 18–20)",
+    "issue": "API call ORG_BU_WEBSERVICE.callWebService(null); and new JSONObject(...) lack try-catch block.",
+    "fix": "Wrap in try-catch block with error logging and status message."
+  },
+  {
+    "id": "F-038",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 42–44)",
+    "issue": "PO_TOLERANCE_WS.callWebService(null); and JSON parsing executed without try-catch.",
+    "fix": "Wrap in try-catch block."
+  },
+  {
+    "id": "F-039",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 59–62)",
+    "issue": "ITEMS_V2.callWebService(null); and JSON parsing executed without try-catch.",
+    "fix": "Wrap in try-catch block."
+  },
+  {
+    "id": "F-040",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 98–101)",
+    "issue": "ITEM_REVISION_WS.callWebService(null); and JSON parsing executed without try-catch.",
+    "fix": "Wrap in try-catch block."
+  },
+  {
+    "id": "F-041",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 220–229)",
+    "issue": "ITEM_TRANSACTION_DEAFAULT_WS.callWebService(null); and JSON parsing executed without try-catch.",
+    "fix": "Wrap in try-catch block."
+  },
+  {
+    "id": "F-042",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 400–402)",
+    "issue": "ORG_PARAM_WEBSERVICE.callWebService(null); and JSON parsing executed without try-catch.",
+    "fix": "Wrap in try-catch block."
+  },
+  {
+    "id": "F-043",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 427–439, 455–464, 478–480)",
+    "issue": "PO_LINE_DTLS_WS, PO_LINE_CHILD_SCH_WS, and PO_LINE_PRJ_DFF_WS calls lack try-catch handling.",
+    "fix": "Wrap all REST execution blocks and JSON response parsing in comprehensive try-catch blocks."
+  },
+  {
+    "id": "F-044",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "LPN",
+    "location": "_onExit (lines 6–9)",
+    "issue": "LPN_INV_WS.callWebService(); and new org.json.JSONObject(...) executed without try-catch.",
+    "fix": "Enclose in try-catch block with UI error reporting."
+  },
+  {
+    "id": "F-045",
+    "parameter": "Missing Exception Handling",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_NUMBER",
+    "location": "_onExit (lines 68, 71)",
+    "issue": "Numeric parsing Double.parseDouble(...) executed without try-catch for REM_LOT_QTY and REM_SR_QTY.",
+    "fix": "Enclose parsing inside a try-catch for NumberFormatException."
+  },
+  {
+    "id": "F-046",
+    "parameter": "Field Dependency Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PROJECT_NUMBER & TASK_NUMBER",
+    "location": "PROJECT_NUMBER _onFocus (line 7)",
+    "issue": "Unused/Dead Field Dependency: PROJECT_NUMBER is hidden and never used on the page. Its focus script attempts to reset non-existent TASK_LOV.",
+    "fix": "Remove PROJECT_NUMBER and TASK_NUMBER from the screen definition entirely, or if needed in future, ensure proper component IDs are referenced."
+  },
+  {
+    "id": "F-047",
+    "parameter": "Field Dependency Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PO_NUM",
+    "location": "_onExit",
+    "issue": "Changing PO_NUM does not fully reset child line/item fields (ITEM_NUMBER, ITEM_DESC, QTY, LOT_NUMBER, SERIAL_NUMBER) if the user navigates back and selects another PO.",
+    "fix": "Implement complete child field reset in PO_NUM _onExit before populating new PO header data."
+  },
+  {
+    "id": "F-048",
+    "parameter": "Field Dependency Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SUBINVENTORY & LOCATOR",
+    "location": "SUBINVENTORY _onExit",
+    "issue": "Changing SUBINVENTORY does not reset or re-validate LOCATOR value if modified directly. Stale locator from previous subinventory may persist.",
+    "fix": "Add LOCATOR.reset(); and flexi.removeObject(\"LOCATOR_ID\"); in SUBINVENTORY _onExit."
+  },
+  {
+    "id": "F-049",
+    "parameter": "Field Dependency Check",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "SERIAL_TYPE",
+    "location": "_onExit (lines 1–25)",
+    "issue": "Switching between \"Individual\" and \"Range\" leaves stale serial arrays and ranges in session objects (SERIAL_ARRAY, TEMP_HASH, RANGE_SERIAL_PARAM).",
+    "fix": "Clear all serial session objects and reset opposite serial input fields on serial type change."
+  },
+  {
+    "id": "F-050",
+    "parameter": "Memory Leak / Garbage Collector (Objects)",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "CANCEL",
+    "location": "_onClick (line 1)",
+    "issue": "flexi.closeApplication(true); terminates the screen without cleaning up over 60 stored session/flexi objects (e.g., PAYLOAD, PRINT_PAYLOAD, FILES_ARR_LIST, SERIAL_ARRAY, LOT_SERIAL_ARRAY, TEMP_FILE_AL). Stale objects remain in memory context.",
+    "fix": "Call a cleanup method that executes flexi.removeObject(...) on all screen keys before closing."
+  },
+  {
+    "id": "F-051",
+    "parameter": "Memory Leak / Garbage Collector (Objects)",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onPageEntered (lines 58–60)",
+    "issue": "Only INPUT_LABEL_REQUESTS is removed on page entry. Leftover data from prior cancelled or completed transactions persists across invocations.",
+    "fix": "Explicitly flush all transaction objects, arrays, and payload caches on page entry."
+  },
+  {
+    "id": "F-052",
+    "parameter": "Memory Leak / Garbage Collector (Objects)",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "TRANSACTION_FUNC & PRINT_FUNC",
+    "location": "Functions (_script)",
+    "issue": "Large constructed JSON payloads (PAYLOAD, PRINT_PAYLOAD) and file attachments (FILES_ARR_LIST, TEMP_FILE_HASH) are retained in session after transaction completion.",
+    "fix": "Explicitly call flexi.removeObject(\"PAYLOAD\");, flexi.removeObject(\"PRINT_PAYLOAD\");, and clear attachment lists upon submission."
+  },
+  {
+    "id": "F-053",
+    "parameter": "Logging",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "FUSION_PO_RECEIPT",
+    "location": "_onPageEntered (line 18)",
+    "issue": "Sensitive Data Printed in Logs: logger.info(\"Printing Value of Employee Id\"+flexi.getSessionObject(\"SCM_EMPLOYEE_ID\")); logs employee identifier directly at INFO level.",
+    "fix": "Remove or mask employee identifier in logs, or demote to logger.trace()."
+  },
+  {
+    "id": "F-054",
+    "parameter": "Logging",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "TRANSACTION_FUNC",
+    "location": "_script (line 298)",
+    "issue": "Sensitive Data Printed in Logs: logger.info(\"Constructed Payload: \" + payload.toString()); dumps entire transaction payload (including item, PO, and quantity details) at INFO level.",
+    "fix": "Change to logger.trace() to avoid flooding production logs with sensitive transaction data."
+  },
+  {
+    "id": "F-055",
+    "parameter": "Logging",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "PRINT_FUNC",
+    "location": "_script (line 294)",
+    "issue": "Sensitive Data Printed in Logs: logger.info(\"payload print label--->\"+flexi.getObject(\"PRINT_PAYLOAD\")); prints full label print payload at INFO level.",
+    "fix": "Demote to logger.trace()."
+  },
+  {
+    "id": "F-056",
+    "parameter": "Logging",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "ITEM_NUMBER",
+    "location": "_onExit (lines 1, 2, 7)",
+    "issue": "Inappropriate log level: uses logger.warn(...) for normal flow entry (\"initializeFields function triggered.\", \"processPoLineValues function triggered.\"). Pollutes warning logs.",
+    "fix": "Change log level from warn to trace or debug."
+  },
+  {
+    "id": "F-057",
+    "parameter": "Logging",
+    "status": "Needs Fix",
+    "file": "FUSION_PO_RECEIPT.json",
+    "component": "Screen-wide scripts",
+    "location": "Multiple components (PO_NUM, ITEM_DESC, SERIAL_NUMBER, etc.)",
+    "issue": "Missing Comments: 17 script routines (> 10 lines of code) contain zero comments explaining business logic, validation rules, or API integration steps.",
+    "fix": "Add method header comments and inline documentation explaining business logic and error flows."
+  }
+]
