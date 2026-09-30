@@ -1,0 +1,18 @@
+{
+  "name": "flexi-screen-code-reviewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web application for technical code review of Intellinum Flexi screen definitions against 8 Gold Standard parameters.",
+  "scripts": {
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "intellinum",
+    "flexi",
+    "code-review",
+    "oracle-fusion",
+    "wms"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

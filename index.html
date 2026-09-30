@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50 text-slate-900">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexi Technical Code Reviewer — Gold Standard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .dark .glass-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col bg-slate-50 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+              Flexi Technical Code Reviewer
+            </h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              Gold Review Standard
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Intellinum Flexi Mobility & Oracle SCM/WMS Cloud Review Engine</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Screen Pill -->
+        <div id="screenBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-lg bg-sky-50 border border-sky-200 dark:bg-sky-950/40 dark:border-sky-800 text-sky-800 dark:text-sky-300 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+          <span id="currentScreenName">FUSION_PO_RECEIPT.json</span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none">
+          <svg id="themeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+
+        <!-- Deploy to Vercel badge / button -->
+        <a href="https://vercel.com/new" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
+          <svg class="w-3.5 h-3.5 mr-1.5" viewBox="0 0 76 65" fill="currentColor">
+            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/>
+          </svg>
+          Deploy to Vercel
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Upload & File Banner -->
+    <div class="glass-card rounded-2xl p-5 shadow-sm">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900 dark:text-white">Active Screen Analysis: <span id="bannerScreenTitle" class="text-sky-600 dark:text-sky-400">FUSION_PO_RECEIPT.json</span></h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Evaluated against the 8 technical parameters with dynamic variable <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs text-sky-600 dark:text-sky-400">${...}</code> and LOV server pagination exceptions applied.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Upload New Screen -->
+          <label class="cursor-pointer inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-sm">
+            <svg class="w-4 h-4 mr-1.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            Upload Any Screen JSON
+            <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="handleFileUpload(event)">
+          </label>
+
+          <!-- Reset to Default Button -->
+          <button onclick="loadDefaultReview()" class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Reset to Sample
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3">
+      <!-- Overall Card -->
+      <div onclick="filterByParameter('ALL')" class="cursor-pointer glass-card rounded-xl p-3.5 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between col-span-2 sm:col-span-4 lg:col-span-1 bg-gradient-to-br from-sky-500/10 to-indigo-500/10 border-sky-300/60 dark:border-sky-700/60">
+        <span class="text-xs font-bold text-sky-700 dark:text-sky-300 uppercase tracking-wider">Total Issues</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricTotalIssues" class="text-2xl font-extrabold text-slate-900 dark:text-white">57</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">Needs Fix</span>
+        </div>
+      </div>
+
+      <!-- Parameter Cards -->
+      <div onclick="filterByParameter('Hardcoding and Latest Library Version Check')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">1. Hardcode & Version</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP1" class="text-lg font-bold text-slate-900 dark:text-white">4</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('API Structure')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">2. API Structure</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP2" class="text-lg font-bold text-slate-900 dark:text-white">17</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('LOV Field Smart Search Enablement')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">3. LOV Smart Search</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP3" class="text-lg font-bold text-slate-900 dark:text-white">2</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('Object Reference Check')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">4. Object Ref Check</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP4" class="text-lg font-bold text-slate-900 dark:text-white">11</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('Missing Exception Handling')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">5. Exception Handling</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP5" class="text-lg font-bold text-slate-900 dark:text-white">11</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('Field Dependency Check')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">6. Field Dependency</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP6" class="text-lg font-bold text-slate-900 dark:text-white">4</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('Memory Leak / Garbage Collector (Objects)')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">7. Memory & Cleanup</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP7" class="text-lg font-bold text-slate-900 dark:text-white">3</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+
+      <div onclick="filterByParameter('Logging')" class="cursor-pointer glass-card rounded-xl p-3 hover:ring-2 hover:ring-sky-500 transition shadow-sm flex flex-col justify-between">
+        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">8. Logging & Comments</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="metricP8" class="text-lg font-bold text-slate-900 dark:text-white">5</span>
+          <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400">Fix</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs & Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <!-- Tabs -->
+      <nav class="flex space-x-2" aria-label="Tabs">
+        <button id="tabTableBtn" onclick="switchTab('table')" class="px-4 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition">
+          Findings Table (<span id="tabCount">57</span>)
+        </button>
+        <button id="tabRulesBtn" onclick="switchTab('rules')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          8 Parameters & Exception Rules
+        </button>
+      </nav>
+
+      <!-- Export Actions -->
+      <div class="flex items-center space-x-2">
+        <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-sm">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Export CSV
+        </button>
+        <button onclick="exportToMarkdown()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-sm">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Export Markdown
+        </button>
+        <button onclick="exportToJSON()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750 transition shadow-sm">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+          Export JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 1: Findings Table View -->
+    <div id="viewTable" class="space-y-4">
+
+      <!-- Filter & Search Controls -->
+      <div class="glass-card rounded-xl p-4 shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <!-- Search -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search components, fields, issues, fixes..." class="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+
+        <!-- Parameter Filter Dropdown -->
+        <div class="w-full md:w-64">
+          <select id="paramSelect" onchange="applyFilters()" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <option value="ALL">All Parameters (57)</option>
+            <option value="Hardcoding and Latest Library Version Check">1. Hardcode & Version</option>
+            <option value="API Structure">2. API Structure</option>
+            <option value="LOV Field Smart Search Enablement">3. LOV Smart Search</option>
+            <option value="Object Reference Check">4. Object Reference Check</option>
+            <option value="Missing Exception Handling">5. Exception Handling</option>
+            <option value="Field Dependency Check">6. Field Dependency Check</option>
+            <option value="Memory Leak / Garbage Collector (Objects)">7. Memory & Garbage Collector</option>
+            <option value="Logging">8. Logging & Comments</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="w-full md:w-36">
+          <select id="statusSelect" onchange="applyFilters()" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <option value="ALL">All Status</option>
+            <option value="Needs Fix">Needs Fix</option>
+            <option value="OK">OK</option>
+          </select>
+        </div>
+
+        <button onclick="resetFilters()" class="text-xs text-sky-600 dark:text-sky-400 hover:underline px-2 py-1">
+          Reset
+        </button>
+      </div>
+
+      <!-- Findings Table -->
+      <div class="glass-card rounded-2xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-left text-xs">
+            <thead class="bg-slate-100/75 dark:bg-slate-800/75 font-semibold text-slate-700 dark:text-slate-200">
+              <tr>
+                <th scope="col" class="py-3 px-3 w-12 text-center">#</th>
+                <th scope="col" class="py-3 px-4">Parameter</th>
+                <th scope="col" class="py-3 px-3">Status</th>
+                <th scope="col" class="py-3 px-3">File/Screen</th>
+                <th scope="col" class="py-3 px-4">Component/Field</th>
+                <th scope="col" class="py-3 px-4">Location</th>
+                <th scope="col" class="py-3 px-5">Issue Found</th>
+                <th scope="col" class="py-3 px-5">Suggested Fix</th>
+                <th scope="col" class="py-3 px-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="findingsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900/50">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-semibold text-slate-900 dark:text-white">No matching findings</h3>
+          <p class="mt-1 text-xs text-slate-500">Try adjusting your filters or search keywords.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Rules Reference Guide -->
+    <div id="viewRules" class="hidden space-y-6">
+      <div class="glass-card rounded-2xl p-6 shadow-sm space-y-6">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">8 Technical Review Parameters & Execution Rules</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Review standard guidelines configured for Intellinum Flexi Mobility deployment screens.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Param 1 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">1</span>
+              <h4 class="text-sm font-semibold">Hardcoding & Latest Library Version</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Flag hardcoded URLs, credentials, file paths, deprecated framework versions (<code class="text-sky-500">REST-Framework-Version: 2</code>).</li>
+              <li><strong class="text-emerald-600 dark:text-emerald-400">Exception Applied:</strong> Dynamic tokens like <code class="text-sky-500">${VARIABLE}</code> evaluate from session/flexi objects at runtime and are NOT flagged.</li>
+              <li><strong class="text-emerald-600 dark:text-emerald-400">Exception Applied:</strong> UI notification timeouts in <code class="text-sky-500">flexi.setStatusMessage("...", 4000)</code> and static business filter codes (<code class="text-sky-500">contextCode</code>, <code class="text-sky-500">DefaultType=2</code>) are exempted.</li>
+            </ul>
+          </div>
+
+          <!-- Param 2 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">2</span>
+              <h4 class="text-sm font-semibold">API Structure</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li><strong class="text-emerald-600 dark:text-emerald-400">LOV Exception:</strong> Do NOT check or flag limit on LOV fields. LOV limit/pagination is handled server-side by the Flexi platform.</li>
+              <li>Enforces <code class="text-sky-500">limit</code> on standalone backend WebServices called programmatically in scripts.</li>
+              <li>Enforces <code class="text-sky-500">onlyData=true</code> and <code class="text-sky-500">fields=...</code> projections on REST requests.</li>
+              <li>Flags deprecated API versioning (e.g., <code class="text-sky-500">11.13.18.05</code>) and HTTP operation mismatches (GET instead of POST for transaction endpoints).</li>
+            </ul>
+          </div>
+
+          <!-- Param 3 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">3</span>
+              <h4 class="text-sm font-semibold">LOV Field Smart Search Enablement</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Evaluates whether smart search is configured and active on every LOV field.</li>
+              <li>Prevents mandatory full blind scans and allows fast auto-complete on handheld mobile scanners.</li>
+            </ul>
+          </div>
+
+          <!-- Param 4 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">4</span>
+              <h4 class="text-sm font-semibold">Object Reference Check</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Flags references to non-existent screen components (e.g. <code class="text-rose-500">PROJECT_LOV</code>, <code class="text-rose-500">TASK_LOV</code>).</li>
+              <li>Flags unsafe chained calls without null guards: <code class="text-sky-500">.getValue().replace()</code>, <code class="text-sky-500">.equals()</code> on null objects, direct <code class="text-sky-500">Double.parseDouble()</code>, and direct <code class="text-sky-500">result.getString()</code> without <code class="text-sky-500">.has()</code>.</li>
+            </ul>
+          </div>
+
+          <!-- Param 5 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">5</span>
+              <h4 class="text-sm font-semibold">Missing Exception Handling</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Webservice calls (<code class="text-sky-500">.callWebService()</code>) and JSON parsing outside try-catch.</li>
+              <li>Swallowed errors: empty catch blocks or catch blocks that only log a trace without alerting the user or halting invalid processing.</li>
+            </ul>
+          </div>
+
+          <!-- Param 6 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">6</span>
+              <h4 class="text-sm font-semibold">Field Dependency Check</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Verifies cascading reset behavior: changing parent fields (<code class="text-sky-500">PO_NUM</code>, <code class="text-sky-500">PROJECT_NUMBER</code>, <code class="text-sky-500">SUBINVENTORY</code>, <code class="text-sky-500">SERIAL_TYPE</code>) must reset dependent child components and session tokens.</li>
+            </ul>
+          </div>
+
+          <!-- Param 7 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">7</span>
+              <h4 class="text-sm font-semibold">Memory Leak / Garbage Collector</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Ensures stored session/flexi objects created via <code class="text-sky-500">flexi.putObject(...)</code> are cleaned up upon screen exit, CANCEL, or new transaction initiation.</li>
+            </ul>
+          </div>
+
+          <!-- Param 8 -->
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-xs font-bold flex items-center justify-center">8</span>
+              <h4 class="text-sm font-semibold">Logging</h4>
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc pl-5">
+              <li>Prevents sensitive PII / employee ID or full transaction payloads from leaking into INFO level logs.</li>
+              <li>Flags improper log levels (<code class="text-amber-500">logger.warn</code> for normal flow, <code class="text-sky-500">logger.trace</code> for swallowed errors).</li>
+              <li>Flags complex routines (&gt; 10 lines) missing explanatory comments.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900">
+    <span id="toastMsg">Fix copied to clipboard!</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // Initial Dataset
+    const DEFAULT_FINDINGS = [{"id":"F-001","parameter":"Hardcoding and Latest Library Version Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SELF_DETAILS_WS","location":"Properties (_wsurl)","issue":"Hardcoded outdated API version in URL path: ${ORACLE_FUSION_URL}/hcmRestApi/resources/11.13.18.05/selfDetails.","fix":"Replace 11.13.18.05 with latest (/hcmRestApi/resources/latest/selfDetails) to ensure compatibility with modern Fusion HCM REST versions."},{"id":"F-002","parameter":"Hardcoding and Latest Library Version Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (lines 14–15)","issue":"Deprecated/outdated REST Framework Version 2 explicitly set for PO_DESC_LINE_WEBSERVICE and PO_LINE_WEBSERVICE: addRequestHeader(\"REST-Framework-Version\", \"2\").","fix":"Upgrade header to Oracle standard REST-Framework-Version: 4 (or latest supported framework version)."},{"id":"F-003","parameter":"Hardcoding and Latest Library Version Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LOCATOR_FILTER_WS","location":"_onCallingRequest (line 1)","issue":"Deprecated/outdated REST Framework Version 2 explicitly set: LOCATOR_FILTER_WS.addRequestHeader(\"REST-FRAMEWORK-VERSION\",\"2\").","fix":"Standardize and update header to REST-Framework-Version: 4."},{"id":"F-004","parameter":"Hardcoding and Latest Library Version Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN_WEBSERVICE, SUBINV_WEBSERVICE, LOCATOR_WEBSERVICE, LPN_INV_WS, ITEM_REVISION_WS","location":"_onCallingRequest / _onFocus","issue":"Inconsistent REST Framework version: sets version 3 across these services while other services use 2.","fix":"Standardize all Oracle Fusion REST services to a consistent version (REST-Framework-Version: 4)."},{"id":"F-005","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEMS_V2","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Standalone backend API called from script without limit, onlyData=true, or fields. Fetches full unpaginated catalog data.","fix":"Add &onlyData=true&limit=10&fields=ItemId,ItemNumber,ItemDescription to _request."},{"id":"F-006","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN_INV_WS","location":"Properties (_request)","issue":"No Limit: Standalone backend verification API called in LPN._onExit without limit parameter.","fix":"Add &limit=10 to _request."},{"id":"F-007","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_WEBSERVICE_V2","location":"Properties (_request)","issue":"No Limit: Script-executed lines query lacks limit parameter.","fix":"Add &limit=100 to _request."},{"id":"F-008","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"RANGE_SERIAL_NUMBER_WS","location":"Properties (_request)","issue":"No Limit: Standalone serial range query lacks limit parameter.","fix":"Add &limit=500 to _request."},{"id":"F-009","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER_WEBSERVICE","location":"Properties (_request)","issue":"No Limit: Standalone serial query lacks limit parameter.","fix":"Add &limit=500 to _request."},{"id":"F-010","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_TOLERANCE_WS","location":"Properties (_request)","issue":"No Limit: Standalone schedule tolerance query called in ITEM_NUMBER._onExit lacks limit parameter.","fix":"Add &limit=10 to _request."},{"id":"F-011","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ORG_BU_WEBSERVICE","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Standalone query q=OrganizationId=${ORACLE_SCM_ORG_ID} lacks limit, onlyData=true, and fields.","fix":"Add &onlyData=true&limit=1&fields=OrganizationId,ManagementBusinessUnitId to _request."},{"id":"F-012","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ORG_PARAM_WEBSERVICE","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../invOrgParameters has empty _request fetching all fields and metadata without pagination.","fix":"Add fields=OrganizationId,NegativeInventoryFlag,LocatorControl&onlyData=true&limit=1 to _request."},{"id":"F-013","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_DEFAULT_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../distributions has empty request string.","fix":"Add fields=DistributionId,POHeaderId,POLineId&onlyData=true&limit=50 to _request."},{"id":"F-014","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_TRANSACTION_DEAFAULT_WS","location":"Properties (_request)","issue":"No Limit & Missing Fields: Query q=...;DefaultType=2&onlyData=true lacks limit and fields projection.","fix":"Add &limit=10&fields=SubinventoryCode,LocatorId to _request."},{"id":"F-015","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_DTLS_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../schedules has empty request string.","fix":"Add fields=LineLocationId,ShipToLocationId,Quantity&onlyData=true&limit=50 to _request."},{"id":"F-016","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_CHILD_SCH_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Dynamic child URL ${PO_LINE_CHILD__URL_OBJ} has empty request string.","fix":"Add fields=LineLocationId,Quantity&onlyData=true&limit=50 to _request."},{"id":"F-017","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_PRJ_DFF_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Dynamic DFF URL ${PO_LINE_PRJDFF_URL} has empty request string.","fix":"Add onlyData=true&limit=50&fields=... specifying only required DFF attributes."},{"id":"F-018","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SELF_DETAILS_WS","location":"Properties (_request / _wsurl)","issue":"Deprecated API, No Limit, Missing OnlyData, Missing Fields: Deprecated version 11.13.18.05 and empty request string.","fix":"Upgrade to latest and configure onlyData=true&fields=PersonId,PersonNumber&limit=1."},{"id":"F-019","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_REVISION_WS","location":"Properties (_request)","issue":"Missing OnlyData & Missing Fields: LOV-bound service lacks onlyData=true and fields projection.","fix":"Add &onlyData=true&fields=RevisionCode,EffectivityDate to _request."},{"id":"F-020","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"RECEIPT_TRAN_WEBSERVICE","location":"Properties (_restOperation)","issue":"HTTP Operation Mismatch: Default operation is GET, but endpoint is /receivingReceiptRequests which expects POST with ${PAYLOAD}.","fix":"Explicitly set _restOperation to POST."},{"id":"F-021","parameter":"API Structure","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"POST_PRINT_WEBSERVICE","location":"Properties (_restOperation)","issue":"HTTP Operation Mismatch: Default operation is GET, but endpoint is /Print with payload ${PRINT_PAYLOAD}.","fix":"Explicitly set _restOperation to POST."},{"id":"F-022","parameter":"LOV Field Smart Search Enablement","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SHIP_LOC","location":"Properties","issue":"Smart search is not configured/enabled (_smartSearch missing). LOV field 'SHIP_LOC' cannot perform real-time prefix filtering.","fix":"Enable smart search on LOV 'SHIP_LOC' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."},{"id":"F-023","parameter":"LOV Field Smart Search Enablement","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PRINTER","location":"Properties","issue":"Smart search is not configured/enabled (_smartSearch missing). LOV field 'PRINTER' cannot perform real-time prefix filtering.","fix":"Enable smart search on LOV 'PRINTER' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."},{"id":"F-024","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER","location":"_onFocus (line 6)","issue":"Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().","fix":"Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."},{"id":"F-025","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER","location":"_onFocus (line 7)","issue":"Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().","fix":"Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."},{"id":"F-026","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TASK_NUMBER","location":"_onFocus (line 5)","issue":"Unused/Dead Component & Invalid Reference: TASK_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component TASK_LOV.reset().","fix":"Remove this unused component from the screen definition entirely."},{"id":"F-027","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (line 82)","issue":"Unsafe chained call: REM_SR_QTY.getValue().replace(\".0\", \"\"). If REM_SR_QTY.getValue() returns null, throws NullPointerException.","fix":"Add null check: String remQty = REM_SR_QTY.getValue(); flexi.putObject(\"QTY_SR\", remQty != null ? remQty.replace(\".0\", \"\") : \"0\");"},{"id":"F-028","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 34, 36, 57, 63, 67, 86, 89, 90, 94)","issue":"Direct result.getString(\"...\") calls without verifying result.has(\"...\") (e.g. ReturnStatus, LotNumber, StartSerialNumber, EndSerialNumber, ReturnMessageText).","fix":"Guard with result.has(\"key\") before reading, or use result.optString(\"key\", \"\")."},{"id":"F-029","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (line 2)","issue":"Malformed check: if(SERIAL_TYPE.getValue().length () > 0 && SERIAL_TYPE.getValue().length () != null). Primitive int cannot be compared to null, and .length() throws NPE if getValue() is null.","fix":"Replace with if (SERIAL_TYPE.getValue() != null && !SERIAL_TYPE.getValue().trim().isEmpty())."},{"id":"F-030","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (line 4)","issue":"Unsafe method call on object: flexi.getObject(\"SERIAL_CONTROL_CODE\").equals(\"5\"). Throws NPE if SERIAL_CONTROL_CODE is null.","fix":"Invert comparison: \"5\".equals(flexi.getObject(\"SERIAL_CONTROL_CODE\"))."},{"id":"F-031","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (line 82)","issue":"Unsafe chained call: flexi.getObject(\"REVISION_CONTROL_FLAG\").toString(). Throws NPE if object is null.","fix":"Check for null: Object revFlag = flexi.getObject(\"REVISION_CONTROL_FLAG\"); if (\"true\".equals(revFlag != null ? revFlag.toString() : \"\"))."},{"id":"F-032","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit (line 22)","issue":"Unsafe array item retrieval: orgArray.get(0).get(\"ManagementBusinessUnitId\") without checking orgArray.length() > 0 or validating index 0.","fix":"Check if (orgArray != null && orgArray.length() > 0) before indexing."},{"id":"F-033","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 13, 31)","issue":"Unsafe .toString() on JSON element: serialArray.get(i).get(\"FromSerialNumber\").toString();. Throws NPE if value is null.","fix":"Use optString(\"FromSerialNumber\") or verify nullness before calling .toString()."},{"id":"F-034","parameter":"Object Reference Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 68, 71)","issue":"Unsafe Double.parseDouble(REM_LOT_QTY.getValue()) and Double.parseDouble(REM_SR_QTY.getValue()) without null or empty validation.","fix":"Validate getValue() != null && !getValue().trim().isEmpty() before parsing."},{"id":"F-035","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 32–33)","issue":"API call GENERATE_LOT_WS.callWebService(null); and JSON parsing new org.json.JSONObject(...) are not enclosed in a try-catch block.","fix":"Wrap in try-catch; on failure, alert user with flexi.setStatusMessage(...)."},{"id":"F-036","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 75, 101)","issue":"Swallowed exceptions: catch (Exception e) { logger.trace(\"Exception while generating Serial: \"+ e); }. Only traces error and silently continues, leaving user in an unhandled state.","fix":"Log logger.error(\"Serial generation error\", e); and display flexi.setStatusMessage(\"Serial generation failed: \" + e.getMessage());."},{"id":"F-037","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit (lines 18–20)","issue":"API call ORG_BU_WEBSERVICE.callWebService(null); and new JSONObject(...) lack try-catch block.","fix":"Wrap in try-catch block with error logging and status message."},{"id":"F-038","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 42–44)","issue":"PO_TOLERANCE_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-039","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 59–62)","issue":"ITEMS_V2.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-040","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 98–101)","issue":"ITEM_REVISION_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-041","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 220–229)","issue":"ITEM_TRANSACTION_DEAFAULT_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-042","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 400–402)","issue":"ORG_PARAM_WEBSERVICE.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-043","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 427–439, 455–464, 478–480)","issue":"PO_LINE_DTLS_WS, PO_LINE_CHILD_SCH_WS, and PO_LINE_PRJ_DFF_WS calls lack try-catch handling.","fix":"Wrap all REST execution blocks and JSON response parsing in comprehensive try-catch blocks."},{"id":"F-044","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN","location":"_onExit (lines 6–9)","issue":"LPN_INV_WS.callWebService(); and new org.json.JSONObject(...) executed without try-catch.","fix":"Enclose in try-catch block with UI error reporting."},{"id":"F-045","parameter":"Missing Exception Handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 68, 71)","issue":"Numeric parsing Double.parseDouble(...) executed without try-catch for REM_LOT_QTY and REM_SR_QTY.","fix":"Enclose parsing inside a try-catch for NumberFormatException."},{"id":"F-046","parameter":"Field Dependency Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER & TASK_NUMBER","location":"PROJECT_NUMBER _onFocus (line 7)","issue":"Unused/Dead Field Dependency: PROJECT_NUMBER is hidden and never used on the page. Its focus script attempts to reset non-existent TASK_LOV.","fix":"Remove PROJECT_NUMBER and TASK_NUMBER from the screen definition entirely, or if needed in future, ensure proper component IDs are referenced."},{"id":"F-047","parameter":"Field Dependency Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit","issue":"Changing PO_NUM does not fully reset child line/item fields (ITEM_NUMBER, ITEM_DESC, QTY, LOT_NUMBER, SERIAL_NUMBER) if the user navigates back and selects another PO.","fix":"Implement complete child field reset in PO_NUM _onExit before populating new PO header data."},{"id":"F-048","parameter":"Field Dependency Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SUBINVENTORY & LOCATOR","location":"SUBINVENTORY _onExit","issue":"Changing SUBINVENTORY does not reset or re-validate LOCATOR value if modified directly. Stale locator from previous subinventory may persist.","fix":"Add LOCATOR.reset(); and flexi.removeObject(\"LOCATOR_ID\"); in SUBINVENTORY _onExit."},{"id":"F-049","parameter":"Field Dependency Check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (lines 1–25)","issue":"Switching between \"Individual\" and \"Range\" leaves stale serial arrays and ranges in session objects (SERIAL_ARRAY, TEMP_HASH, RANGE_SERIAL_PARAM).","fix":"Clear all serial session objects and reset opposite serial input fields on serial type change."},{"id":"F-050","parameter":"Memory Leak / Garbage Collector (Objects)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"CANCEL","location":"_onClick (line 1)","issue":"flexi.closeApplication(true); terminates the screen without cleaning up over 60 stored session/flexi objects (e.g., PAYLOAD, PRINT_PAYLOAD, FILES_ARR_LIST, SERIAL_ARRAY, LOT_SERIAL_ARRAY, TEMP_FILE_AL). Stale objects remain in memory context.","fix":"Call a cleanup method that executes flexi.removeObject(...) on all screen keys before closing."},{"id":"F-051","parameter":"Memory Leak / Garbage Collector (Objects)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (lines 58–60)","issue":"Only INPUT_LABEL_REQUESTS is removed on page entry. Leftover data from prior cancelled or completed transactions persists across invocations.","fix":"Explicitly flush all transaction objects, arrays, and payload caches on page entry."},{"id":"F-052","parameter":"Memory Leak / Garbage Collector (Objects)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TRANSACTION_FUNC & PRINT_FUNC","location":"Functions (_script)","issue":"Large constructed JSON payloads (PAYLOAD, PRINT_PAYLOAD) and file attachments (FILES_ARR_LIST, TEMP_FILE_HASH) are retained in session after transaction completion.","fix":"Explicitly call flexi.removeObject(\"PAYLOAD\");, flexi.removeObject(\"PRINT_PAYLOAD\");, and clear attachment lists upon submission."},{"id":"F-053","parameter":"Logging","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (line 18)","issue":"Sensitive Data Printed in Logs: logger.info(\"Printing Value of Employee Id\"+flexi.getSessionObject(\"SCM_EMPLOYEE_ID\")); logs employee identifier directly at INFO level.","fix":"Remove or mask employee identifier in logs, or demote to logger.trace()."},{"id":"F-054","parameter":"Logging","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TRANSACTION_FUNC","location":"_script (line 298)","issue":"Sensitive Data Printed in Logs: logger.info(\"Constructed Payload: \" + payload.toString()); dumps entire transaction payload (including item, PO, and quantity details) at INFO level.","fix":"Change to logger.trace() to avoid flooding production logs with sensitive transaction data."},{"id":"F-055","parameter":"Logging","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PRINT_FUNC","location":"_script (line 294)","issue":"Sensitive Data Printed in Logs: logger.info(\"payload print label--->\"+flexi.getObject(\"PRINT_PAYLOAD\")); prints full label print payload at INFO level.","fix":"Demote to logger.trace()."},{"id":"F-056","parameter":"Logging","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 1, 2, 7)","issue":"Inappropriate log level: uses logger.warn(...) for normal flow entry (\"initializeFields function triggered.\", \"processPoLineValues function triggered.\"). Pollutes warning logs.","fix":"Change log level from warn to trace or debug."},{"id":"F-057","parameter":"Logging","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"Screen-wide scripts","location":"Multiple components (PO_NUM, ITEM_DESC, SERIAL_NUMBER, etc.)","issue":"Missing Comments: 17 script routines (> 10 lines of code) contain zero comments explaining business logic, validation rules, or API integration steps.","fix":"Add method header comments and inline documentation explaining business logic and error flows."}];
+    let activeFindings = [...DEFAULT_FINDINGS];
+    let currentParamFilter = 'ALL';
+    let currentStatusFilter = 'ALL';
+
+    // Theme Management
+    function initTheme() {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    function toggleDarkMode() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+      }
+    }
+    initTheme();
+
+    // Render Metrics
+    function updateMetrics() {
+      const counts = {
+        total: activeFindings.length,
+        p1: activeFindings.filter(f => f.parameter === 'Hardcoding and Latest Library Version Check').length,
+        p2: activeFindings.filter(f => f.parameter === 'API Structure').length,
+        p3: activeFindings.filter(f => f.parameter === 'LOV Field Smart Search Enablement').length,
+        p4: activeFindings.filter(f => f.parameter === 'Object Reference Check').length,
+        p5: activeFindings.filter(f => f.parameter === 'Missing Exception Handling').length,
+        p6: activeFindings.filter(f => f.parameter === 'Field Dependency Check').length,
+        p7: activeFindings.filter(f => f.parameter === 'Memory Leak / Garbage Collector (Objects)').length,
+        p8: activeFindings.filter(f => f.parameter === 'Logging').length,
+      };
+
+      document.getElementById('metricTotalIssues').innerText = counts.total;
+      document.getElementById('tabCount').innerText = counts.total;
+      document.getElementById('metricP1').innerText = counts.p1;
+      document.getElementById('metricP2').innerText = counts.p2;
+      document.getElementById('metricP3').innerText = counts.p3;
+      document.getElementById('metricP4').innerText = counts.p4;
+      document.getElementById('metricP5').innerText = counts.p5;
+      document.getElementById('metricP6').innerText = counts.p6;
+      document.getElementById('metricP7').innerText = counts.p7;
+      document.getElementById('metricP8').innerText = counts.p8;
+    }
+
+    // Render Table
+    function renderTable(items) {
+      const tbody = document.getElementById('findingsTableBody');
+      const emptyState = document.getElementById('emptyState');
+      tbody.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      items.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors';
+
+        // Param Badge Color
+        let paramColor = 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+        if (item.parameter.includes('Hardcode')) paramColor = 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300';
+        if (item.parameter.includes('API')) paramColor = 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300';
+        if (item.parameter.includes('LOV')) paramColor = 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300';
+        if (item.parameter.includes('Object')) paramColor = 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300';
+        if (item.parameter.includes('Exception')) paramColor = 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300';
+        if (item.parameter.includes('Dependency')) paramColor = 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300';
+        if (item.parameter.includes('Memory')) paramColor = 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300';
+        if (item.parameter.includes('Logging')) paramColor = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center font-mono text-[11px] text-slate-400">${index + 1}</td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${paramColor}">
+              ${item.parameter}
+            </span>
+          </td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">
+              ${item.status}
+            </span>
+          </td>
+          <td class="py-3 px-3 font-mono text-[11px] text-slate-500 dark:text-slate-400">${item.file}</td>
+          <td class="py-3 px-4 font-mono font-semibold text-[11px] text-sky-700 dark:text-sky-300">${item.component}</td>
+          <td class="py-3 px-4 font-mono text-[11px] text-slate-600 dark:text-slate-400">${item.location}</td>
+          <td class="py-3 px-5 text-slate-800 dark:text-slate-200 text-xs leading-relaxed">${item.issue}</td>
+          <td class="py-3 px-5 text-emerald-700 dark:text-emerald-400 text-xs leading-relaxed font-mono">${item.fix}</td>
+          <td class="py-3 px-3 text-center">
+            <button onclick="copyFixText('${escapeHtml(item.fix)}')" title="Copy suggested fix" class="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+              </svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'");
+    }
+
+    // Filtering
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const p = document.getElementById('paramSelect').value;
+      const s = document.getElementById('statusSelect').value;
+
+      currentParamFilter = p;
+      currentStatusFilter = s;
+
+      const filtered = activeFindings.filter(item => {
+        const matchesP = (p === 'ALL' || item.parameter === p);
+        const matchesS = (s === 'ALL' || item.status === s);
+        const matchesQ = !q || (
+          item.parameter.toLowerCase().includes(q) ||
+          item.component.toLowerCase().includes(q) ||
+          item.location.toLowerCase().includes(q) ||
+          item.issue.toLowerCase().includes(q) ||
+          item.fix.toLowerCase().includes(q)
+        );
+        return matchesP && matchesS && matchesQ;
+      });
+
+      renderTable(filtered);
+    }
+
+    function filterByParameter(paramName) {
+      document.getElementById('paramSelect').value = paramName;
+      switchTab('table');
+      applyFilters();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('paramSelect').value = 'ALL';
+      document.getElementById('statusSelect').value = 'ALL';
+      applyFilters();
+    }
+
+    // Tabs
+    function switchTab(tab) {
+      const viewTable = document.getElementById('viewTable');
+      const viewRules = document.getElementById('viewRules');
+      const tabTableBtn = document.getElementById('tabTableBtn');
+      const tabRulesBtn = document.getElementById('tabRulesBtn');
+
+      if (tab === 'table') {
+        viewTable.classList.remove('hidden');
+        viewRules.classList.add('hidden');
+        tabTableBtn.className = 'px-4 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition';
+        tabRulesBtn.className = 'px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition';
+      } else {
+        viewTable.classList.add('hidden');
+        viewRules.classList.remove('hidden');
+        tabRulesBtn.className = 'px-4 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition';
+        tabTableBtn.className = 'px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition';
+      }
+    }
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2000);
+    }
+
+    function copyFixText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Suggested fix copied to clipboard!');
+      }).catch(() => {
+        showToast('Copied text!');
+      });
+    }
+
+    // Reset to Default
+    function loadDefaultReview() {
+      activeFindings = [...DEFAULT_FINDINGS];
+      document.getElementById('currentScreenName').innerText = 'FUSION_PO_RECEIPT.json';
+      document.getElementById('bannerScreenTitle').innerText = 'FUSION_PO_RECEIPT.json';
+      updateMetrics();
+      resetFilters();
+      showToast('Loaded FUSION_PO_RECEIPT.json review');
+    }
+
+    // Exports
+    function exportToCSV() {
+      let csv = 'Parameter,Status,File/Screen,Component/Field Name,Location,Issue Found,Suggested Fix\n';
+      activeFindings.forEach(f => {
+        const row = [
+          `"${f.parameter.replace(/"/g, '""')}"`,
+          `"${f.status.replace(/"/g, '""')}"`,
+          `"${f.file.replace(/"/g, '""')}"`,
+          `"${f.component.replace(/"/g, '""')}"`,
+          `"${f.location.replace(/"/g, '""')}"`,
+          `"${f.issue.replace(/"/g, '""')}"`,
+          `"${f.fix.replace(/"/g, '""')}"`
+        ].join(',');
+        csv += row + '\n';
+      });
+      downloadFile(csv, 'flexi_review_findings.csv', 'text/csv');
+    }
+
+    function exportToJSON() {
+      downloadFile(JSON.stringify(activeFindings, null, 2), 'flexi_review_findings.json', 'application/json');
+    }
+
+    function exportToMarkdown() {
+      let md = '# Flexi Technical Code Review Report\n\n';
+      md += '| Parameter | Status | File/Screen | Component/Field Name | Location | Issue Found | Suggested Fix |\n';
+      md += '| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n';
+      activeFindings.forEach(f => {
+        md += `| ${f.parameter} | ${f.status} | ${f.file} | ${f.component} | ${f.location} | ${f.issue} | ${f.fix} |\n`;
+      });
+      downloadFile(md, 'flexi_review_findings.md', 'text/markdown');
+    }
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Exported ' + fileName);
+    }
+
+    // Live Upload & Review Analyzer Engine
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const json = JSON.parse(e.target.result);
+          runLiveScreenAnalysis(json, file.name);
+        } catch (err) {
+          alert('Invalid JSON file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function runLiveScreenAnalysis(data, fileName) {
+      const newFindings = [];
+      let count = 1;
+
+      function addFinding(param, comp, loc, issue, fix) {
+        newFindings.push({
+          id: 'F-' + String(count++).padStart(3, '0'),
+          parameter: param,
+          status: 'Needs Fix',
+          file: fileName,
+          component: comp,
+          location: loc,
+          issue: issue,
+          fix: fix
+        });
+      }
+
+      // 1. Gather all nodes
+      function walk(node) {
+        let list = [node];
+        if (node.children && Array.isArray(node.children)) {
+          for (const c of node.children) list = list.concat(walk(c));
+        }
+        return list;
+      }
+      const allNodes = walk(data);
+
+      // Collect LOV WebServices
+      const lovWsIds = new Set();
+      const lovs = allNodes.filter(n => n.type === 'LOV');
+      lovs.forEach(lov => {
+        const ws = lov.properties?._webService;
+        if (ws) lovWsIds.add(ws);
+      });
+
+      // P1 & P2: Analyze WebServices
+      const webServices = allNodes.filter(n => n.type === 'WebService');
+      webServices.forEach(ws => {
+        const id = ws.properties?.id || ws.properties?.name || 'WebService';
+        const url = ws.properties?._wsurl || '';
+        const req = ws.properties?._request || '';
+        const op = ws.properties?._restOperation || 'GET';
+        const isLov = lovWsIds.has(id);
+        const isAction = url.includes('generateLots') || url.includes('generateSerialNumbers') || url.includes('receivingReceiptRequests') || url.includes('Print');
+
+        // P1: Deprecated version in URL
+        if (url.includes('11.13.18.05')) {
+          addFinding('Hardcoding and Latest Library Version Check', id, 'Properties (_wsurl)', 'Hardcoded outdated API version in URL path: ' + url, 'Replace 11.13.18.05 with latest in URL path.');
+        }
+
+        // P2: HTTP Method mismatch
+        if ((url.includes('receivingReceiptRequests') || url.includes('Print')) && op === 'GET') {
+          addFinding('API Structure', id, 'Properties (_restOperation)', 'HTTP Operation Mismatch: Configured as GET for transaction/print endpoint.', 'Explicitly set _restOperation to POST.');
+        }
+
+        if (!isAction && url) {
+          // Limit: ONLY check if NOT an LOV
+          const hasLimit = /limit=\d+/i.test(req) || /limit=/i.test(url);
+          if (!isLov && !hasLimit) {
+            addFinding('API Structure', id, 'Properties (_request)', 'No Limit: Backend API called without a limit parameter.', 'Add &limit=100 (or business limit) to _request.');
+          }
+
+          // onlyData
+          const hasOnlyData = /onlyData=true/i.test(req) || /onlyData=true/i.test(url);
+          if (!hasOnlyData) {
+            addFinding('API Structure', id, 'Properties (_request)', 'Missing OnlyData: Missing onlyData=true parameter.', 'Add &onlyData=true to _request.');
+          }
+
+          // fields
+          const hasFields = /fields=/i.test(req) || /fields=/i.test(url);
+          if (!hasFields) {
+            addFinding('API Structure', id, 'Properties (_request)', 'Query fields: Missing fields parameter.', 'Add &fields=<required_attributes> to _request.');
+          }
+        }
+      });
+
+      // P3: LOV Smart Search
+      lovs.forEach(lov => {
+        const id = lov.properties?.id || lov.properties?.name || 'LOV';
+        const smart = lov.properties?._smartSearch;
+        if (!smart) {
+          addFinding('LOV Field Smart Search Enablement', id, 'Properties', 'Smart search is not configured/enabled (_smartSearch missing).', 'Enable smart search on LOV field to allow dynamic prefix filtering.');
+        }
+      });
+
+      // Collect scripts
+      const allCompIds = new Set(allNodes.map(n => n.properties?.id || n.properties?.name).filter(Boolean));
+      allCompIds.add('flexi'); allCompIds.add('logger'); allCompIds.add('session'); allCompIds.add('page'); allCompIds.add('event');
+
+      allNodes.forEach(node => {
+        const compId = node.properties?.id || node.properties?.name || node.type;
+        for (const [key, val] of Object.entries(node.properties || {})) {
+          if (typeof val === 'string' && (val.startsWith('script:') || key.startsWith('_on') || key === '_script')) {
+            const code = val.replace(/^script:\r?\n?/, '');
+            const lines = code.split('\n');
+
+            lines.forEach((line, idx) => {
+              const l = line.trim();
+              const lineNo = idx + 1;
+              if (l.startsWith('//') || l.startsWith('/*') || l.startsWith('*')) return;
+
+              // P1: Framework version 2
+              if (l.includes('REST-Framework-Version') && (l.includes('"2"') || l.includes("'2'"))) {
+                addFinding('Hardcoding and Latest Library Version Check', compId, key + ' (line ' + lineNo + ')', 'Deprecated REST-Framework-Version 2 explicitly configured.', 'Upgrade to REST-Framework-Version: 4.');
+              }
+
+              // P4: Unsafe chained getValue
+              if (/\b[A-Za-z0-9_]+\.getValue\(\)\.replace\(/.test(l)) {
+                addFinding('Object Reference Check', compId, key + ' (line ' + lineNo + ')', 'Unsafe chained method call on .getValue().replace() without null checking.', 'Verify getValue() != null before calling string methods.');
+              }
+
+              // P4: Non-existent components
+              const methodMatch = l.match(/\b([A-Z0-9_]{3,})\.(reset|setValue|setHidden)\(/);
+              if (methodMatch && !allCompIds.has(methodMatch[1])) {
+                addFinding('Object Reference Check', compId, key + ' (line ' + lineNo + ')', 'Calls method on non-existent component: ' + methodMatch[1], 'Replace with the valid component reference in the screen.');
+              }
+
+              // P5: API without try-catch
+              if (l.includes('.callWebService(') && !code.includes('try')) {
+                addFinding('Missing Exception Handling', compId, key + ' (line ' + lineNo + ')', 'API call without try-catch block: ' + l, 'Wrap in try-catch and alert user on failure.');
+              }
+
+              // P8: Sensitive data in logs
+              if (l.includes('logger.info') && (l.includes('EMPLOYEE_ID') || l.includes('Employee Id') || l.includes('payload.toString()'))) {
+                addFinding('Logging', compId, key + ' (line ' + lineNo + ')', 'Sensitive user/employee or payload data printed in INFO log.', 'Remove or mask sensitive data, or demote to logger.trace().');
+              }
+            });
+          }
+        }
+      });
+
+      // Update State
+      activeFindings = newFindings;
+      document.getElementById('currentScreenName').innerText = fileName;
+      document.getElementById('bannerScreenTitle').innerText = fileName;
+      updateMetrics();
+      resetFilters();
+      showToast('Analyzed ' + fileName + ': Found ' + newFindings.length + ' findings');
+    }
+
+    // Initialize UI on load
+    updateMetrics();
+    renderTable(activeFindings);
+  </script>
+</body>
+</html>
