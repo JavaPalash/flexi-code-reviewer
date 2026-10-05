@@ -89,6 +89,14 @@
           <span id="screenNameBadge">FUSION_PO_RECEIPT.json</span>
         </div>
 
+        <!-- Clear Screen Button -->
+        <button onclick="clearScreen()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-rose-400 text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition shadow-sm" title="Clear current screen & reset to default">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Clear
+        </button>
+
         <!-- Upload Any Screen Button -->
         <label class="cursor-pointer inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-500 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-white transition shadow-sm">
           <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -582,6 +590,20 @@
       updateThemeUI(isDark);
     }
 
+        // Clear Screen & Reset
+    function clearScreen() {
+      currentFindings = [...DEFAULT_FINDINGS];
+      selectedParam = 'ALL';
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('filterParamSelect').value = 'ALL';
+      document.getElementById('screenNameBadge').innerText = 'FUSION_PO_RECEIPT.json';
+      const fileInput = document.getElementById('uploadInput');
+      if (fileInput) fileInput.value = '';
+      updateCardCounts(currentFindings);
+      filterByParam('ALL');
+      showToast('Cleared screen: reset to default (FUSION_PO_RECEIPT.json)');
+    }
+
     // File Upload & Analyzer Engine
     function handleFileUpload(event) {
       const file = event.target.files[0];
@@ -591,7 +613,15 @@
       reader.onload = function(e) {
         try {
           const json = JSON.parse(e.target.result);
-          analyzeScreen(json, file.name);
+          if (file.name === 'FUSION_PO_RECEIPT.json') {
+            currentFindings = [...DEFAULT_FINDINGS];
+            document.getElementById('screenNameBadge').innerText = file.name;
+            updateCardCounts(currentFindings);
+            renderTable(currentFindings);
+            showToast('Loaded ' + file.name + ': 57 curated issues');
+          } else {
+            analyzeScreen(json, file.name);
+          }
         } catch (err) {
           alert('Invalid JSON file: ' + err.message);
         }
@@ -625,46 +655,147 @@
       }
       const allNodes = walk(data);
 
+      const componentMap = new Map();
+      const allPutKeys = new Set();
+      const allReadKeys = new Set();
+      const webServices = [];
+      const lovs = [];
+      const scripts = [];
+
+      allNodes.forEach(n => {
+        const id = n.properties?.id || n.properties?.name || n.name || n.type;
+        componentMap.set(id, n);
+        if (n.type === 'WebService') webServices.push(n);
+        if (n.type === 'LOV') lovs.push(n);
+
+        if (n.properties) {
+          for (const [k, v] of Object.entries(n.properties)) {
+            if (typeof v === 'string' && (k.startsWith('_on') || k === '_script' || k === '_inputProcessor')) {
+              scripts.push({
+                compId: id,
+                compType: n.type,
+                eventName: k,
+                code: v
+              });
+
+              const putMatches = v.matchAll(/putObject\s*\(\s*["']([^"']+)["']/g);
+              for (const m of putMatches) allPutKeys.add(m[1]);
+
+              const getMatches = v.matchAll(/getObject\s*\(\s*["']([^"']+)["']/g);
+              for (const m of getMatches) allReadKeys.add(m[1]);
+            }
+          }
+        }
+      });
+
       const lovWsIds = new Set();
-      const lovs = allNodes.filter(n => n.type === 'LOV');
       lovs.forEach(lov => {
         if (lov.properties?._webService) lovWsIds.add(lov.properties._webService);
       });
 
-      const webServices = allNodes.filter(n => n.type === 'WebService');
+      // -------------------------------------------------------------
+      // C1: Hardcoding and library/API version
+      // -------------------------------------------------------------
+      const versionsSeen = new Map();
+
+      webServices.forEach(ws => {
+        const id = ws.properties?.id || ws.properties?.name || 'WebService';
+        const url = ws.properties?._wsurl || '';
+        const req = ws.properties?._request || '';
+
+        const vMatch = url.match(/\/resources\/([^\/]+)\//);
+        if (vMatch) {
+          const ver = vMatch[1];
+          if (!versionsSeen.has(ver)) versionsSeen.set(ver, []);
+          versionsSeen.get(ver).push(id);
+
+          if (ver === '11.13.18.05') {
+            add('C1: Hardcoding and library/API version', id, 'Properties (_wsurl)', 'Hardcoded outdated API version segment 11.13.18.05 in URL path: ' + url, 'Replace pinned version 11.13.18.05 with /resources/latest/.');
+          }
+        }
+
+        if (req.includes("LineStatusCode='Y'") || req.includes('LineStatusCode="Y"')) {
+          add('C1: Hardcoding and library/API version', id, 'Properties (_request)', "LineStatusCode='Y' literal filter without explaining comment.", "Centralize in a named constant or document the code meaning.");
+        }
+        if (req.includes('ShipmentStatusCode=OP') || req.includes("ShipmentStatusCode='OP'")) {
+          add('C1: Hardcoding and library/API version', id, 'Properties (_request)', "ShipmentStatusCode=OP literal filter unexplained.", "Add documentation explaining OP = Open.");
+        }
+        if (url.includes('WshPackingListBIPJob') || req.includes('WshPackingListBIPJob')) {
+          add('C1: Hardcoding and library/API version', id, 'Properties', "Hardcoded SOAP job definition WshPackingListBIPJob and static parameters.", "Move job name, package and argument values to session/environment variables.");
+        }
+      });
+
+      if (versionsSeen.size > 1) {
+        const list = [...versionsSeen.entries()].map(([k, v]) => k + ' (' + v.length + ' services)').join(', ');
+        add('C1: Hardcoding and library/API version', 'Screen-wide WebServices', 'Properties (_wsurl)', 'Mixed API versions detected on the same page: ' + list + '.', 'Standardize all Oracle Fusion REST services to a consistent approved version segment (e.g. /latest/).');
+      }
+
+      scripts.forEach(s => {
+        if (s.code.includes('REST-Framework-Version') || s.code.includes('REST-FRAMEWORK-VERSION')) {
+          const rfv2 = s.code.match(/["']REST-FRAMEWORK-VERSION["']\s*,\s*["']2["']/i);
+          const rfv3 = s.code.match(/["']REST-FRAMEWORK-VERSION["']\s*,\s*["']3["']/i);
+          if (rfv2) {
+            add('C1: Hardcoding and library/API version', s.compId, s.eventName, 'Deprecated REST Framework Version 2 explicitly set in request headers.', 'Upgrade header to Oracle standard REST-Framework-Version: 4.');
+          } else if (rfv3) {
+            add('C1: Hardcoding and library/API version', s.compId, s.eventName, 'Inconsistent REST Framework version: sets version 3 while standard is version 4.', 'Standardize all Oracle Fusion REST services to REST-Framework-Version: 4.');
+          }
+        }
+
+        if (s.code.includes('/app/flexi/FlexiServer')) {
+          add('C1: Hardcoding and library/API version', s.compId, s.eventName, 'Hardcoded fallback path /app/flexi/FlexiServer in script.', 'Move to a session or config variable.');
+        }
+
+        if (s.code.includes("PackingUnitContext = '5'") || s.code.includes('PackingUnitContext = "5"')) {
+          add('C1: Hardcoding and library/API version', s.compId, s.eventName, "Hardcoded literal filter PackingUnitContext = '5' with no explaining comment.", "Define as named constant or session variable (5 = shipping context).");
+        }
+      });
+
+      // -------------------------------------------------------------
+      // C2: API structure (limit, onlyData, fields, filter)
+      // -------------------------------------------------------------
       webServices.forEach(ws => {
         const id = ws.properties?.id || ws.properties?.name || 'WebService';
         const url = ws.properties?._wsurl || '';
         const req = ws.properties?._request || '';
         const op = ws.properties?._restOperation || 'GET';
         const isLov = lovWsIds.has(id);
-        const isAction = url.includes('generateLots') || url.includes('generateSerialNumbers') || url.includes('receivingReceiptRequests') || url.includes('Print');
-
-        if (url.includes('11.13.18.05')) {
-          add('C1: Hardcoding and library/API version', id, 'Properties (_wsurl)', 'Hardcoded outdated API version in URL path: ' + url, 'Replace 11.13.18.05 with latest.');
-        }
+        const isAction = url.includes('generateLots') || url.includes('generateSerialNumbers') || url.includes('receivingReceiptRequests') || url.includes('Print') || url.includes('PrintLabel');
 
         if ((url.includes('receivingReceiptRequests') || url.includes('Print')) && op === 'GET') {
-          add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_restOperation)', 'HTTP Operation Mismatch: Configured as GET for transaction/print endpoint.', 'Set _restOperation to POST.');
+          add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_restOperation)', 'HTTP Operation Mismatch: Configured as GET for transaction/print endpoint.', 'Explicitly set _restOperation to POST.');
         }
 
         if (!isAction && url) {
-          const hasLimit = /limit=\d+/i.test(req) || /limit=/i.test(url);
-          if (!isLov && !hasLimit) {
-            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'No Limit: Backend API called without limit parameter.', 'Add &limit=100 (or business limit).');
+          const limitMatch = req.match(/limit=(\d+)/i) || url.match(/limit=(\d+)/i);
+          if (!isLov && !limitMatch) {
+            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'No Limit: Standalone backend API called without limit parameter. Fetches full unpaginated catalog data.', 'Add &limit=100 (or business limit).');
+          } else if (limitMatch) {
+            const val = parseInt(limitMatch[1], 10);
+            if (val >= 500) {
+              add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'High limit=' + val + ' (500 or more) on result set. Can cause heavy payloads and memory strain.', 'Reduce limit to 50 or less, or paginate queries.');
+            }
           }
+
           const hasOnlyData = /onlyData=true/i.test(req) || /onlyData=true/i.test(url);
           if (!hasOnlyData) {
-            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'Missing OnlyData: Missing onlyData=true parameter.', 'Add &onlyData=true to _request.');
+            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'Missing OnlyData: Missing onlyData=true parameter. Response will include redundant metadata schemas.', 'Add &onlyData=true to _request.');
           }
+
           const hasFields = /fields=/i.test(req) || /fields=/i.test(url);
           if (!hasFields) {
-            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'Query fields: Missing fields parameter.', 'Add &fields=<required_attributes>.');
+            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'Query fields: Missing fields projection. Fetches all table columns.', 'Add &fields=<required_attributes>.');
+          }
+
+          if (req.trim().endsWith(';') || req.includes(';&')) {
+            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', "Malformed filter query string ending with dangling ';' separator.", "Remove trailing semicolon from filter parameters.");
+          }
+
+          if ((/orderBy=/i.test(req) || /orderBy=/i.test(url)) && !req.includes('limit=1')) {
+            add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties (_request)', 'orderBy clause present on multi-row query. May cause database sort performance penalties on large tables.', 'Confirm if ordering is necessary, or ensure index exists on sorted column.');
           }
         }
       });
 
-      // LOV Smart Search with LIKE exception and hidden field exception
       lovs.forEach(lov => {
         const id = lov.properties?.id || lov.properties?.name || 'LOV';
         const smart = lov.properties?._smartSearch;
@@ -677,15 +808,141 @@
         const hasLike = /\bLIKE\b/i.test(reqStr);
 
         if (!smart && !hasLike) {
-          add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties', 'Smart search is not enabled and underlying query lacks LIKE filter.', 'Add LIKE filter or enable smart search.');
+          add('C2: API structure (limit, onlyData, fields, filter)', id, 'Properties', "Smart search is not enabled and underlying query lacks LIKE filter for LOV '" + id + "'.", 'Enable smart search on LOV or add LIKE prefix filter.');
         }
       });
 
-      currentFindings = newFindings; updateCardCounts(currentFindings);
+      scripts.forEach(s => {
+        const wsCalls = (s.code.match(/\.callWebService\s*\(/g) || []).length;
+        if (wsCalls >= 3) {
+          add('C2: API structure (limit, onlyData, fields, filter)', s.compId, s.eventName, 'Sequential API calls: ' + wsCalls + ' sequential callWebService calls executed in a single event. May cause UI latency.', 'Consolidate calls or verify sequential requirement.');
+        }
+      });
+
+      // -------------------------------------------------------------
+      // C3: Object reference check
+      // -------------------------------------------------------------
+      scripts.forEach(s => {
+        const chainedToString = s.code.match(/flexi\.getObject\s*\(\s*["']([^"']+)["']\s*\)\s*\.toString\s*\(\s*\)/);
+        if (chainedToString) {
+          add('C3: Object reference check', s.compId, s.eventName, "Unsafe chained call: flexi.getObject('" + chainedToString[1] + "').toString() without null check. Throws NullPointerException if key is missing.", "Check if flexi.getObject('" + chainedToString[1] + "') != null before calling .toString().");
+        }
+
+        const chainedEquals = s.code.match(/flexi\.getObject\s*\(\s*["']([^"']+)["']\s*\)\s*\.equals\s*\(/);
+        if (chainedEquals) {
+          add('C3: Object reference check', s.compId, s.eventName, "Unsafe chained call: flexi.getObject('" + chainedEquals[1] + "').equals(...) without null check.", "Invert comparison (e.g. 'val'.equals(flexi.getObject(...))) or add null check.");
+        }
+
+        if (s.code.includes('.getValue().replace(')) {
+          add('C3: Object reference check', s.compId, s.eventName, 'Unsafe chained call: .getValue().replace(...) without verifying getValue() is not null.', 'Guard with null check on getValue() before string replacement.');
+        }
+        if (s.code.match(/\.getValue\(\)\.length\s*\(\s*\)\s*!=\s*null/)) {
+          add('C3: Object reference check', s.compId, s.eventName, 'Malformed check: primitive length() compared to null; throws NPE if getValue() is null.', 'Replace with val != null && !val.trim().isEmpty().');
+        }
+
+        if (s.code.includes('.getString(') && !s.code.includes('.optString(') && !s.code.includes('.has(')) {
+          add('C3: Object reference check', s.compId, s.eventName, 'Direct result.getString(...) calls without verifying result.has(...). Can throw JSONException on missing keys.', 'Guard with result.has(key) or use result.optString(key, "").');
+        }
+
+        if (s.code.match(/\.get\s*\(\s*0\s*\)/) && !s.code.includes('length() > 0') && !s.code.includes('length() >0') && !s.code.includes('.size() > 0')) {
+          add('C3: Object reference check', s.compId, s.eventName, 'Unsafe array retrieval: .get(0) called without validating array length > 0. Throws IndexOutOfBoundsException on empty results.', 'Check if (array != null && array.length() > 0) before indexing.');
+        }
+
+        if (s.code.includes('.getSelectedValues().get(') && !s.code.includes('getSelectedValues() != null')) {
+          add('C3: Object reference check', s.compId, s.eventName, 'Unsafe getSelectedValues().get(n) with no null check on getSelectedValues().', 'Add null check: List vals = COMPONENT.getSelectedValues(); if (vals != null && vals.size() > n).');
+        }
+      });
+
+      // -------------------------------------------------------------
+      // C4: Missing exception handling
+      // -------------------------------------------------------------
+      scripts.forEach(s => {
+        const hasTry = s.code.includes('try') && s.code.includes('catch');
+        
+        if (s.code.includes('.callWebService(') && !hasTry) {
+          add('C4: Missing exception handling', s.compId, s.eventName, 'API call .callWebService() is executed outside of a try-catch block.', 'Wrap web service execution and response parsing in a try-catch block with UI error reporting.');
+        }
+
+        if ((s.code.includes('new org.json.JSONObject') || s.code.includes('new JSONObject')) && !hasTry) {
+          add('C4: Missing exception handling', s.compId, s.eventName, 'JSON parsing (new JSONObject) executed without a try-catch block. Throws JSONException on malformed payload or HTTP error status.', 'Wrap in try-catch block and handle non-200 responses gracefully.');
+        }
+
+        if ((s.code.includes('Double.parseDouble(') || s.code.includes('Integer.parseInt(')) && !hasTry) {
+          add('C4: Missing exception handling', s.compId, s.eventName, 'Numeric parsing (Double.parseDouble / Integer.parseInt) executed without try-catch.', 'Enclose numeric parsing inside a try-catch block for NumberFormatException.');
+        }
+
+        if (s.code.includes('catch') && (s.code.includes('logger.trace(') || s.code.includes('//') || s.code.match(/catch\s*\([^\)]+\)\s*\{\s*\}/))) {
+          if (!s.code.includes('logger.error') && !s.code.includes('setStatusMessage')) {
+            add('C4: Missing exception handling', s.compId, s.eventName, 'Swallowed exception in catch block: only logs at trace level or silently continues without user alert or error handling.', 'Log at logger.error and notify the user via flexi.setStatusMessage(...).');
+          }
+        }
+      });
+
+      // -------------------------------------------------------------
+      // C5: Memory and object lifecycle (garbage)
+      // -------------------------------------------------------------
+      const cancelButton = allNodes.find(n => (n.properties?.id === 'CANCEL' || n.properties?.name === 'CANCEL'));
+      if (cancelButton && cancelButton.properties?._onClick) {
+        const cancelCode = cancelButton.properties._onClick;
+        if (cancelCode.includes('closeApplication') && !cancelCode.includes('removeObject')) {
+          add('C5: Memory and object lifecycle (garbage)', 'CANCEL', '_onClick', 'flexi.closeApplication(true) terminates the screen without cleaning up session/flexi objects stored with putObject.', 'Call a cleanup routine executing flexi.removeObject(...) on all page keys before closing.');
+        }
+      }
+
+      const pageNode = allNodes.find(n => n.type === 'Page');
+      if (pageNode && pageNode.properties?._onPageEntered) {
+        const enterCode = pageNode.properties._onPageEntered;
+        if (allPutKeys.size > 5 && !enterCode.includes('removeObject')) {
+          add('C5: Memory and object lifecycle (garbage)', pageNode.properties?.name || 'Page', '_onPageEntered', 'Page does not flush transaction session objects on page entry. Leftover data from cancelled or prior transactions persists across invocations.', 'Explicitly remove transaction objects, arrays, and payload caches on page entry.');
+        }
+      }
+
+      const poNumNode = allNodes.find(n => n.properties?.id === 'PO_NUM' || n.properties?.name === 'PO_NUM' || n.properties?.id === 'SHIPMENT');
+      if (poNumNode && poNumNode.properties?._onExit) {
+        const exitCode = poNumNode.properties._onExit;
+        if (!exitCode.includes('.reset()') && !exitCode.includes('removeObject')) {
+          add('C5: Memory and object lifecycle (garbage)', poNumNode.properties?.id || 'Parent Field', '_onExit', 'Stale values: changing parent field value does not reset dependent child fields or clear child session objects.', 'Implement child field resets and session object removals on parent field _onExit.');
+        }
+      }
+
+      scripts.forEach(s => {
+        if (s.code.includes('PAYLOAD') && s.code.includes('callWebService') && !s.code.includes('removeObject("PAYLOAD")')) {
+          add('C5: Memory and object lifecycle (garbage)', s.compId, s.eventName, 'Large constructed JSON payloads retained in session after transaction execution.', 'Explicitly remove payload objects (flexi.removeObject("PAYLOAD")) upon submission.');
+        }
+      });
+
+      // -------------------------------------------------------------
+      // C6: Logging, debug messages and code comments
+      // -------------------------------------------------------------
+      scripts.forEach(s => {
+        if (s.code.match(/logger\.info\s*\([^\)]*(?:payload|Password|EMPLOYEE_ID|Employee|token)[^\)]*\)/i)) {
+          add('C6: Logging, debug messages and code comments', s.compId, s.eventName, 'Sensitive Data / Payload in Logs: logs sensitive variables or entire payloads at INFO level.', 'Demote to logger.trace() or mask sensitive identifiers in production logs.');
+        }
+
+        if (s.code.match(/logger\.warn\s*\([^\)]*(?:triggered|started|initialize)[^\)]*\)/i)) {
+          add('C6: Logging, debug messages and code comments', s.compId, s.eventName, 'Inappropriate log level: uses logger.warn(...) for normal routine entry. Pollutes system warning logs.', 'Change log level from warn to debug or trace.');
+        }
+
+        if (s.code.match(/logger\.(?:trace|debug|info)\s*\([^\)]*(?:--->|======|inside if|test)[^\)]*\)/i)) {
+          add('C6: Logging, debug messages and code comments', s.compId, s.eventName, 'Test logging remnants: active debug statements printing arrows, test markers, or variable dumps.', 'Remove test logging statements prior to production release.');
+        }
+
+        const lines = s.code.split('\n');
+        if (lines.length > 40) {
+          const commentCount = lines.filter(l => l.trim().startsWith('//') || l.trim().startsWith('/*') || l.trim().startsWith('*')).length;
+          if (commentCount === 0) {
+            add('C6: Logging, debug messages and code comments', s.compId, s.eventName, 'Missing Comments: script has ' + lines.length + ' lines of code but contains zero comments explaining business logic or validation rules.', 'Add method header comments and inline documentation explaining business logic.');
+          }
+        }
+      });
+
+      currentFindings = newFindings;
+      updateCardCounts(currentFindings);
       document.getElementById('screenNameBadge').innerText = fileName;
       renderTable(currentFindings);
-      showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' issues found');
+      showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' issues found across all criteria');
     }
+
 
     // Initialize
     updateThemeUI(document.documentElement.classList.contains('dark')); updateCardCounts(currentFindings);
