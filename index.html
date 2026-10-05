@@ -61,7 +61,7 @@
     <div class="w-full max-w-[98%] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
       
       <!-- Brand & Title -->
-      <div class="flex items-center space-x-3.5">
+      <div class="flex items-center space-x-3.5 cursor-pointer" onclick="resetToHome()" title="Go to Home / Import Screen">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -83,31 +83,31 @@
       <!-- Action Center -->
       <div class="flex items-center space-x-3">
         
-        <!-- Active Screen File Badge -->
-        <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-medium">
+        <!-- Active Screen File Badge (Visible in review dashboard) -->
+        <div id="screenBadgeContainer" class="hidden items-center space-x-2 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-medium">
           <span class="w-2 h-2 rounded-full bg-sky-500 dark:bg-sky-400 animate-pulse"></span>
-          <span id="screenNameBadge">FUSION_PO_RECEIPT.json</span>
+          <span id="screenNameBadge">Screen</span>
         </div>
 
-        <!-- Clear Screen Button -->
-        <button onclick="clearScreen()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-rose-400 text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition shadow-sm" title="Clear current screen & reset to default">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        <!-- Reset Button (Visible in review dashboard - returns to Home/Import) -->
+        <button id="resetToHomeBtn" onclick="resetToHome()" class="hidden items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-400 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 transition shadow-sm" title="Reset & return to home page to import another screen">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
           </svg>
-          Clear
+          Reset / New Screen
         </button>
 
-        <!-- Upload Any Screen Button -->
-        <label class="cursor-pointer inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-500 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-white transition shadow-sm">
+        <!-- Upload Button in Navbar (Visible in review dashboard) -->
+        <label id="navUploadBtn" class="hidden cursor-pointer items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-500 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-white transition shadow-sm">
           <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
           </svg>
-          Upload Screen JSON
+          Import JSON
           <input type="file" id="uploadInput" accept=".json" class="hidden" onchange="handleFileUpload(event)">
         </label>
 
-        <!-- Export Dropdown Button -->
-        <div class="relative inline-block text-left">
+        <!-- Export Dropdown Button (Visible in review dashboard) -->
+        <div id="exportDropdownContainer" class="hidden relative text-left">
           <button onclick="toggleExportMenu()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition shadow-sm">
             <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -141,159 +141,264 @@
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD CONTENT -->
-  <main class="w-full max-w-[98%] mx-auto px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-4">
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="w-full max-w-[98%] mx-auto px-4 sm:px-6 py-5 flex-1 flex flex-col justify-center">
 
-    <!-- METRICS & PARAMETERS CAROUSEL/GRID -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+    <!-- 1. HOME / IMPORT SCREEN VIEW -->
+    <div id="homeImportView" class="w-full max-w-4xl mx-auto my-auto py-8 flex flex-col items-center justify-center space-y-6">
       
-      <!-- ALL ISSUES CARD -->
-      <button onclick="filterByParam('ALL')" id="card-ALL" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-sky-500 dark:border-sky-500 transition glow-active ring-2 ring-sky-500 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">All Issues</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">Needs Fix</span>
+      <!-- Hero Header -->
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+          <span>Intellinum Flexi Mobility & Oracle SCM/WMS Reviewer</span>
         </div>
-        <div class="mt-2 text-2xl font-bold text-slate-900 dark:text-white" id="count-ALL">57</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">6 Criteria (C1–C6)</div>
-      </button>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Import Flexi Screen Export for Review
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+          Upload any Flexi screen export JSON to automatically inspect and audit all 6 gold-standard technical review criteria (C1–C6).
+        </p>
+      </div>
 
-      <!-- C1: Hardcoding and library/API version -->
-      <button onclick="filterByParam('C1: Hardcoding and library/API version')" id="card-c1" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C1: Hardcoding</span>
-          <span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c1">4</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Library & Versions</div>
-      </button>
-
-      <!-- C2: API structure (limit, onlyData, fields, filter) -->
-      <button onclick="filterByParam('C2: API structure (limit, onlyData, fields, filter)')" id="card-c2" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C2: API Structure</span>
-          <span class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c2">19</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Limit, onlyData, filter</div>
-      </button>
-
-      <!-- C3: Object reference check -->
-      <button onclick="filterByParam('C3: Object reference check')" id="card-c3" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C3: Object Reference</span>
-          <span class="w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c3">11</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Null & Missing Comps</div>
-      </button>
-
-      <!-- C4: Missing exception handling -->
-      <button onclick="filterByParam('C4: Missing exception handling')" id="card-c4" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C4: Exceptions</span>
-          <span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c4">11</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Missing try/catch</div>
-      </button>
-
-      <!-- C5: Memory and object lifecycle (garbage) -->
-      <button onclick="filterByParam('C5: Memory and object lifecycle (garbage)')" id="card-c5" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C5: Memory & Lifecycle</span>
-          <span class="w-2 h-2 rounded-full bg-orange-500 dark:bg-orange-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c5">7</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Garbage & Stale Values</div>
-      </button>
-
-      <!-- C6: Logging, debug messages and code comments -->
-      <button onclick="filterByParam('C6: Logging, debug messages and code comments')" id="card-c6" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C6: Logging</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-        </div>
-        <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c6">5</div>
-        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">PII & Code Comments</div>
-      </button>
-
-    </div>
-
-    <!-- SEARCH & FILTER TOOLBAR -->
-    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm transition-colors">
-      
-      <!-- Search Input -->
-      <div class="relative w-full md:w-96">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <!-- Drag & Drop Upload Zone -->
+      <div id="dropZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('homeFileInput').click()" class="w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 bg-white/70 dark:bg-slate-900/60 p-10 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm group">
+        <div class="w-16 h-16 rounded-2xl bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800/80 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-4 group-hover:scale-110 transition">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
           </svg>
         </div>
-        <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Filter by component, field, issue, or fix..." class="w-full pl-9 pr-4 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-950 transition">
+        <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100">
+          Click to browse or drag and drop Flexi screen export
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+          Supports Flexi screen definition JSON files (<code class="text-sky-600 dark:text-sky-400 font-mono">*.json</code>)
+        </p>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <button type="button" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-md shadow-sky-500/20 transition">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Select Screen JSON
+          </button>
+          <button type="button" onclick="event.stopPropagation(); loadSampleScreen();" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition">
+            <svg class="w-4 h-4 mr-1.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Load Sample (FUSION_PO_RECEIPT.json)
+          </button>
+        </div>
+        <input type="file" id="homeFileInput" accept=".json" class="hidden" onchange="handleFileUpload(event)">
       </div>
 
-      <!-- Filter Controls -->
-      <div class="flex items-center space-x-2.5 w-full md:w-auto justify-end">
-        
-        <!-- Parameter Select -->
-        <select id="filterParamSelect" onchange="onSelectParamChange()" class="py-2 px-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-          <option value="ALL">All Criteria (57)</option>
-          <option value="C1: Hardcoding and library/API version">C1: Hardcoding and Library/API Version (4)</option>
-          <option value="C2: API structure (limit, onlyData, fields, filter)">C2: API Structure (limit, onlyData, fields, filter) (19)</option>
-          <option value="C3: Object reference check">C3: Object Reference Check (11)</option>
-          <option value="C4: Missing exception handling">C4: Missing Exception Handling (11)</option>
-          <option value="C5: Memory and object lifecycle (garbage)">C5: Memory and Object Lifecycle (garbage) (7)</option>
-          <option value="C6: Logging, debug messages and code comments">C6: Logging, Debug Messages & Comments (5)</option>
-        </select>
-
-        <!-- Showing count badge -->
-        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
-          Showing <span id="visibleRowCount" class="text-sky-600 dark:text-sky-400 font-semibold">57</span> findings
-        </span>
-
-        <!-- Reset Button -->
-        <button onclick="resetAllFilters()" class="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white px-2 py-1 transition font-medium" title="Clear filters">
-          Reset
-        </button>
+      <!-- Scope of Review (C1 to C6 preview grid) -->
+      <div class="w-full">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
+          Comprehensive 6 Criteria Automated Audit Scope
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-amber-600 dark:text-amber-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span>C1: Hardcoding</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">API version segments, literal status codes, fallback paths, framework versions.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-blue-600 dark:text-blue-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span>C2: API Structure</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">limit, onlyData, fields projection, filter wildcards, orderBy, sequential calls.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-purple-600 dark:text-purple-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+              <span>C3: Object Reference</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Null guards on getObject, chained .toString()/.equals(), array get(0), getSelectedValues.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-rose-600 dark:text-rose-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              <span>C4: Exception Handling</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">try/catch blocks around callWebService, parseDouble, JSONObject, swallowed catches.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-orange-600 dark:text-orange-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+              <span>C5: Memory & Lifecycle</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">CANCEL button cleanup, putObject retention, stale dependent field resets on exit.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm">
+            <div class="flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>C6: Logging & Comments</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Payloads in logs, test log remnants, scripts > 40 lines missing header/inline comments.</p>
+          </div>
+        </div>
       </div>
 
     </div>
 
-    <!-- MAIN FINDINGS DATA TABLE -->
-    <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm flex-1 flex flex-col transition-colors">
-      <div class="overflow-x-auto w-full">
-        <table class="min-w-full text-left text-xs divide-y divide-slate-200 dark:divide-slate-800">
-          
-          <!-- Table Header -->
-          <thead class="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-300 font-semibold tracking-wider border-b border-slate-200 dark:border-slate-800">
-            <tr>
-              <th scope="col" class="py-3 px-3 w-10 text-center text-slate-500 dark:text-slate-400">#</th>
-              <th scope="col" class="py-3 px-3.5 w-48">Parameter</th>
-              <th scope="col" class="py-3 px-2.5 w-24 text-center">Status</th>
-              <th scope="col" class="py-3 px-3 w-40">File / Screen</th>
-              <th scope="col" class="py-3 px-4 w-48">Component / Field</th>
-              <th scope="col" class="py-3 px-3 w-36">Location</th>
-              <th scope="col" class="py-3 px-5 min-w-[320px]">Issue Found</th>
-              <th scope="col" class="py-3 px-5 min-w-[320px]">Suggested Fix</th>
-              <th scope="col" class="py-3 px-2 w-16 text-center">Action</th>
-            </tr>
-          </thead>
+    <!-- 2. REVIEW DASHBOARD VIEW (Shown when a screen is imported) -->
+    <div id="reviewDashboardView" class="hidden flex-1 flex flex-col space-y-4">
 
-          <!-- Table Body -->
-          <tbody id="findingsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900/60 font-normal">
-            <!-- Dynamically populated via renderTable() -->
-          </tbody>
+      <!-- METRICS & PARAMETERS CAROUSEL/GRID -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+        
+        <!-- ALL ISSUES CARD -->
+        <button onclick="filterByParam('ALL')" id="card-ALL" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-sky-500 dark:border-sky-500 transition glow-active ring-2 ring-sky-500 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">All Issues</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">Needs Fix</span>
+          </div>
+          <div class="mt-2 text-2xl font-bold text-slate-900 dark:text-white" id="count-ALL">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">6 Criteria (C1–C6)</div>
+        </button>
 
-        </table>
+        <!-- C1: Hardcoding and library/API version -->
+        <button onclick="filterByParam('C1: Hardcoding and library/API version')" id="card-c1" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C1: Hardcoding</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c1">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Library & Versions</div>
+        </button>
+
+        <!-- C2: API structure (limit, onlyData, fields, filter) -->
+        <button onclick="filterByParam('C2: API structure (limit, onlyData, fields, filter)')" id="card-c2" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C2: API Structure</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c2">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Limit, onlyData, filter</div>
+        </button>
+
+        <!-- C3: Object reference check -->
+        <button onclick="filterByParam('C3: Object reference check')" id="card-c3" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C3: Object Reference</span>
+            <span class="w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c3">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Null & Missing Comps</div>
+        </button>
+
+        <!-- C4: Missing exception handling -->
+        <button onclick="filterByParam('C4: Missing exception handling')" id="card-c4" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C4: Exceptions</span>
+            <span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c4">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Missing try/catch</div>
+        </button>
+
+        <!-- C5: Memory and object lifecycle (garbage) -->
+        <button onclick="filterByParam('C5: Memory and object lifecycle (garbage)')" id="card-c5" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C5: Memory & Lifecycle</span>
+            <span class="w-2 h-2 rounded-full bg-orange-500 dark:bg-orange-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c5">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Garbage & Stale Values</div>
+        </button>
+
+        <!-- C6: Logging, debug messages and code comments -->
+        <button onclick="filterByParam('C6: Logging, debug messages and code comments')" id="card-c6" class="param-card text-left p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">C6: Logging</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+          </div>
+          <div class="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-c6">0</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">PII & Code Comments</div>
+        </button>
+
       </div>
 
-      <!-- Empty State -->
-      <div id="noResults" class="hidden p-12 text-center flex-1 flex flex-col items-center justify-center">
-        <svg class="h-10 w-10 text-slate-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">No matching review findings found</div>
-        <p class="text-xs text-slate-500 mt-1">Try resetting your filter or search query.</p>
+      <!-- SEARCH & FILTER TOOLBAR -->
+      <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm transition-colors">
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-96">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Filter by component, field, issue, or fix..." class="w-full pl-9 pr-4 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-950 transition">
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="flex items-center space-x-2.5 w-full md:w-auto justify-end">
+          
+          <!-- Parameter Select -->
+          <select id="filterParamSelect" onchange="onSelectParamChange()" class="py-2 px-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
+            <option value="ALL">All Criteria</option>
+            <option value="C1: Hardcoding and library/API version">C1: Hardcoding and Library/API Version</option>
+            <option value="C2: API structure (limit, onlyData, fields, filter)">C2: API Structure (limit, onlyData, fields, filter)</option>
+            <option value="C3: Object reference check">C3: Object Reference Check</option>
+            <option value="C4: Missing exception handling">C4: Missing Exception Handling</option>
+            <option value="C5: Memory and object lifecycle (garbage)">C5: Memory and Object Lifecycle (garbage)</option>
+            <option value="C6: Logging, debug messages and code comments">C6: Logging, Debug Messages & Comments</option>
+          </select>
+
+          <!-- Showing count badge -->
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
+            Showing <span id="visibleRowCount" class="text-sky-600 dark:text-sky-400 font-semibold">0</span> findings
+          </span>
+
+          <!-- Reset Filter Button -->
+          <button onclick="resetAllFilters()" class="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white px-2 py-1 transition font-medium" title="Clear search & filters">
+            Reset Filters
+          </button>
+        </div>
+
+      </div>
+
+      <!-- MAIN FINDINGS DATA TABLE -->
+      <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm flex-1 flex flex-col transition-colors">
+        <div class="overflow-x-auto w-full">
+          <table class="min-w-full text-left text-xs divide-y divide-slate-200 dark:divide-slate-800">
+            
+            <!-- Table Header -->
+            <thead class="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-300 font-semibold tracking-wider border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th scope="col" class="py-3 px-3 w-10 text-center text-slate-500 dark:text-slate-400">#</th>
+                <th scope="col" class="py-3 px-3.5 w-48">Parameter</th>
+                <th scope="col" class="py-3 px-2.5 w-24 text-center">Status</th>
+                <th scope="col" class="py-3 px-3 w-40">File / Screen</th>
+                <th scope="col" class="py-3 px-4 w-48">Component / Field</th>
+                <th scope="col" class="py-3 px-3 w-36">Location</th>
+                <th scope="col" class="py-3 px-5 min-w-[320px]">Issue Found</th>
+                <th scope="col" class="py-3 px-5 min-w-[320px]">Suggested Fix</th>
+                <th scope="col" class="py-3 px-2 w-16 text-center">Action</th>
+              </tr>
+            </thead>
+
+            <!-- Table Body -->
+            <tbody id="findingsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900/60 font-normal">
+              <!-- Dynamically populated via renderTable() -->
+            </tbody>
+
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="noResults" class="hidden p-12 text-center flex-1 flex flex-col items-center justify-center">
+          <svg class="h-10 w-10 text-slate-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">No matching review findings found</div>
+          <p class="text-xs text-slate-500 mt-1">Try resetting your filter or search query.</p>
+        </div>
+
       </div>
 
     </div>
@@ -305,14 +410,14 @@
     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
     </svg>
-    <span id="toastMessage">Copied to clipboard!</span>
+    <span id="toastMessage">Notification</span>
   </div>
 
   <!-- CLIENT-SIDE APPLICATION DATA & ENGINE -->
   <script>
-    // Complete 57 Findings Dataset
+    // Complete 57 Findings Dataset for FUSION_PO_RECEIPT.json
     const DEFAULT_FINDINGS = [{"id":"F-001","parameter":"C1: Hardcoding and library/API version","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SELF_DETAILS_WS","location":"Properties (_wsurl)","issue":"Hardcoded outdated API version in URL path: ${ORACLE_FUSION_URL}/hcmRestApi/resources/11.13.18.05/selfDetails.","fix":"Replace 11.13.18.05 with latest (/hcmRestApi/resources/latest/selfDetails) to ensure compatibility with modern Fusion HCM REST versions."},{"id":"F-002","parameter":"C1: Hardcoding and library/API version","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (lines 14–15)","issue":"Deprecated/outdated REST Framework Version 2 explicitly set for PO_DESC_LINE_WEBSERVICE and PO_LINE_WEBSERVICE: addRequestHeader(\"REST-Framework-Version\", \"2\").","fix":"Upgrade header to Oracle standard REST-Framework-Version: 4 (or latest supported framework version)."},{"id":"F-003","parameter":"C1: Hardcoding and library/API version","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LOCATOR_FILTER_WS","location":"_onCallingRequest (line 1)","issue":"Deprecated/outdated REST Framework Version 2 explicitly set: LOCATOR_FILTER_WS.addRequestHeader(\"REST-FRAMEWORK-VERSION\",\"2\").","fix":"Standardize and update header to REST-Framework-Version: 4."},{"id":"F-004","parameter":"C1: Hardcoding and library/API version","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN_WEBSERVICE, SUBINV_WEBSERVICE, LOCATOR_WEBSERVICE, LPN_INV_WS, ITEM_REVISION_WS","location":"_onCallingRequest / _onFocus","issue":"Inconsistent REST Framework version: sets version 3 across these services while other services use 2.","fix":"Standardize all Oracle Fusion REST services to a consistent version (REST-Framework-Version: 4)."},{"id":"F-005","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEMS_V2","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Standalone backend API called from script without limit, onlyData=true, or fields. Fetches full unpaginated catalog data.","fix":"Add &onlyData=true&limit=10&fields=ItemId,ItemNumber,ItemDescription to _request."},{"id":"F-006","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN_INV_WS","location":"Properties (_request)","issue":"No Limit: Standalone backend verification API called in LPN._onExit without limit parameter.","fix":"Add &limit=10 to _request."},{"id":"F-007","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_WEBSERVICE_V2","location":"Properties (_request)","issue":"No Limit: Script-executed lines query lacks limit parameter.","fix":"Add &limit=100 to _request."},{"id":"F-008","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"RANGE_SERIAL_NUMBER_WS","location":"Properties (_request)","issue":"No Limit: Standalone serial range query lacks limit parameter.","fix":"Add &limit=500 to _request."},{"id":"F-009","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER_WEBSERVICE","location":"Properties (_request)","issue":"No Limit: Standalone serial query lacks limit parameter.","fix":"Add &limit=500 to _request."},{"id":"F-010","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_TOLERANCE_WS","location":"Properties (_request)","issue":"No Limit: Standalone schedule tolerance query called in ITEM_NUMBER._onExit lacks limit parameter.","fix":"Add &limit=10 to _request."},{"id":"F-011","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ORG_BU_WEBSERVICE","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Standalone query q=OrganizationId=${ORACLE_SCM_ORG_ID} lacks limit, onlyData=true, and fields.","fix":"Add &onlyData=true&limit=1&fields=OrganizationId,ManagementBusinessUnitId to _request."},{"id":"F-012","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ORG_PARAM_WEBSERVICE","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../invOrgParameters has empty _request fetching all fields and metadata without pagination.","fix":"Add fields=OrganizationId,NegativeInventoryFlag,LocatorControl&onlyData=true&limit=1 to _request."},{"id":"F-013","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_DEFAULT_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../distributions has empty request string.","fix":"Add fields=DistributionId,POHeaderId,POLineId&onlyData=true&limit=50 to _request."},{"id":"F-014","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_TRANSACTION_DEAFAULT_WS","location":"Properties (_request)","issue":"No Limit & Missing Fields: Query q=...;DefaultType=2&onlyData=true lacks limit and fields projection.","fix":"Add &limit=10&fields=SubinventoryCode,LocatorId to _request."},{"id":"F-015","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_DTLS_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Child endpoint .../schedules has empty request string.","fix":"Add fields=LineLocationId,ShipToLocationId,Quantity&onlyData=true&limit=50 to _request."},{"id":"F-016","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_CHILD_SCH_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Dynamic child URL ${PO_LINE_CHILD__URL_OBJ} has empty request string.","fix":"Add fields=LineLocationId,Quantity&onlyData=true&limit=50 to _request."},{"id":"F-017","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_LINE_PRJ_DFF_WS","location":"Properties (_request)","issue":"No Limit, Missing OnlyData, Missing Fields: Dynamic DFF URL ${PO_LINE_PRJDFF_URL} has empty request string.","fix":"Add onlyData=true&limit=50&fields=... specifying only required DFF attributes."},{"id":"F-018","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SELF_DETAILS_WS","location":"Properties (_request / _wsurl)","issue":"Deprecated API, No Limit, Missing OnlyData, Missing Fields: Deprecated version 11.13.18.05 and empty request string.","fix":"Upgrade to latest and configure onlyData=true&fields=PersonId,PersonNumber&limit=1."},{"id":"F-019","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_REVISION_WS","location":"Properties (_request)","issue":"Missing OnlyData & Missing Fields: LOV-bound service lacks onlyData=true and fields projection.","fix":"Add &onlyData=true&fields=RevisionCode,EffectivityDate to _request."},{"id":"F-020","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"RECEIPT_TRAN_WEBSERVICE","location":"Properties (_restOperation)","issue":"HTTP Operation Mismatch: Default operation is GET, but endpoint is /receivingReceiptRequests which expects POST with ${PAYLOAD}.","fix":"Explicitly set _restOperation to POST."},{"id":"F-021","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"POST_PRINT_WEBSERVICE","location":"Properties (_restOperation)","issue":"HTTP Operation Mismatch: Default operation is GET, but endpoint is /Print with payload ${PRINT_PAYLOAD}.","fix":"Explicitly set _restOperation to POST."},{"id":"F-022","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SHIP_LOC","location":"Properties","issue":"Smart search is not configured/enabled (_smartSearch missing). LOV field 'SHIP_LOC' cannot perform real-time prefix filtering.","fix":"Enable smart search on LOV 'SHIP_LOC' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."},{"id":"F-023","parameter":"C2: API structure (limit, onlyData, fields, filter)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PRINTER","location":"Properties","issue":"Smart search is not configured/enabled (_smartSearch missing). LOV field 'PRINTER' cannot perform real-time prefix filtering.","fix":"Enable smart search on LOV 'PRINTER' to allow real-time filtering, auto-complete, and prevent large full dataset retrieval."},{"id":"F-024","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER","location":"_onFocus (line 6)","issue":"Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().","fix":"Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."},{"id":"F-025","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER","location":"_onFocus (line 7)","issue":"Unused/Dead Component & Invalid Reference: PROJECT_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component PROJECT_LOV.reset() and TASK_LOV.reset().","fix":"Remove this unused component (and its child TASK_NUMBER) entirely from the screen definition to clean up dead code and avoid referencing non-existent objects."},{"id":"F-026","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TASK_NUMBER","location":"_onFocus (line 5)","issue":"Unused/Dead Component & Invalid Reference: TASK_NUMBER is hidden and never used in the active page flow. Additionally, it calls non-existent component TASK_LOV.reset().","fix":"Remove this unused component from the screen definition entirely."},{"id":"F-027","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (line 82)","issue":"Unsafe chained call: REM_SR_QTY.getValue().replace(\".0\", \"\"). If REM_SR_QTY.getValue() returns null, throws NullPointerException.","fix":"Add null check: String remQty = REM_SR_QTY.getValue(); flexi.putObject(\"QTY_SR\", remQty != null ? remQty.replace(\".0\", \"\") : \"0\");"},{"id":"F-028","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 34, 36, 57, 63, 67, 86, 89, 90, 94)","issue":"Direct result.getString(\"...\") calls without verifying result.has(\"...\") (e.g. ReturnStatus, LotNumber, StartSerialNumber, EndSerialNumber, ReturnMessageText).","fix":"Guard with result.has(\"key\") before reading, or use result.optString(\"key\", \"\")."},{"id":"F-029","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (line 2)","issue":"Malformed check: if(SERIAL_TYPE.getValue().length () > 0 && SERIAL_TYPE.getValue().length () != null). Primitive int cannot be compared to null, and .length() throws NPE if getValue() is null.","fix":"Replace with if (SERIAL_TYPE.getValue() != null && !SERIAL_TYPE.getValue().trim().isEmpty())."},{"id":"F-030","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (line 4)","issue":"Unsafe method call on object: flexi.getObject(\"SERIAL_CONTROL_CODE\").equals(\"5\"). Throws NPE if SERIAL_CONTROL_CODE is null.","fix":"Invert comparison: \"5\".equals(flexi.getObject(\"SERIAL_CONTROL_CODE\"))."},{"id":"F-031","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (line 82)","issue":"Unsafe chained call: flexi.getObject(\"REVISION_CONTROL_FLAG\").toString(). Throws NPE if object is null.","fix":"Check for null: Object revFlag = flexi.getObject(\"REVISION_CONTROL_FLAG\"); if (\"true\".equals(revFlag != null ? revFlag.toString() : \"\"))."},{"id":"F-032","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit (line 22)","issue":"Unsafe array item retrieval: orgArray.get(0).get(\"ManagementBusinessUnitId\") without checking orgArray.length() > 0 or validating index 0.","fix":"Check if (orgArray != null && orgArray.length() > 0) before indexing."},{"id":"F-033","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 13, 31)","issue":"Unsafe .toString() on JSON element: serialArray.get(i).get(\"FromSerialNumber\").toString();. Throws NPE if value is null.","fix":"Use optString(\"FromSerialNumber\") or verify nullness before calling .toString()."},{"id":"F-034","parameter":"C3: Object reference check","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 68, 71)","issue":"Unsafe Double.parseDouble(REM_LOT_QTY.getValue()) and Double.parseDouble(REM_SR_QTY.getValue()) without null or empty validation.","fix":"Validate getValue() != null && !getValue().trim().isEmpty() before parsing."},{"id":"F-035","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 32–33)","issue":"API call GENERATE_LOT_WS.callWebService(null); and JSON parsing new org.json.JSONObject(...) are not enclosed in a try-catch block.","fix":"Wrap in try-catch; on failure, alert user with flexi.setStatusMessage(...)."},{"id":"F-036","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onSpecialKeyPressed (lines 75, 101)","issue":"Swallowed exceptions: catch (Exception e) { logger.trace(\"Exception while generating Serial: \"+ e); }. Only traces error and silently continues, leaving user in an unhandled state.","fix":"Log logger.error(\"Serial generation error\", e); and display flexi.setStatusMessage(\"Serial generation failed: \" + e.getMessage());."},{"id":"F-037","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit (lines 18–20)","issue":"API call ORG_BU_WEBSERVICE.callWebService(null); and new JSONObject(...) lack try-catch block.","fix":"Wrap in try-catch block with error logging and status message."},{"id":"F-038","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 42–44)","issue":"PO_TOLERANCE_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-039","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 59–62)","issue":"ITEMS_V2.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-040","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 98–101)","issue":"ITEM_REVISION_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-041","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 220–229)","issue":"ITEM_TRANSACTION_DEAFAULT_WS.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-042","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 400–402)","issue":"ORG_PARAM_WEBSERVICE.callWebService(null); and JSON parsing executed without try-catch.","fix":"Wrap in try-catch block."},{"id":"F-043","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 427–439, 455–464, 478–480)","issue":"PO_LINE_DTLS_WS, PO_LINE_CHILD_SCH_WS, and PO_LINE_PRJ_DFF_WS calls lack try-catch handling.","fix":"Wrap all REST execution blocks and JSON response parsing in comprehensive try-catch blocks."},{"id":"F-044","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"LPN","location":"_onExit (lines 6–9)","issue":"LPN_INV_WS.callWebService(); and new org.json.JSONObject(...) executed without try-catch.","fix":"Enclose in try-catch block with UI error reporting."},{"id":"F-045","parameter":"C4: Missing exception handling","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_NUMBER","location":"_onExit (lines 68, 71)","issue":"Numeric parsing Double.parseDouble(...) executed without try-catch for REM_LOT_QTY and REM_SR_QTY.","fix":"Enclose parsing inside a try-catch for NumberFormatException."},{"id":"F-046","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PROJECT_NUMBER & TASK_NUMBER","location":"PROJECT_NUMBER _onFocus (line 7)","issue":"Unused/Dead Field Dependency: PROJECT_NUMBER is hidden and never used on the page. Its focus script attempts to reset non-existent TASK_LOV.","fix":"Remove PROJECT_NUMBER and TASK_NUMBER from the screen definition entirely, or if needed in future, ensure proper component IDs are referenced."},{"id":"F-047","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PO_NUM","location":"_onExit","issue":"Changing PO_NUM does not fully reset child line/item fields (ITEM_NUMBER, ITEM_DESC, QTY, LOT_NUMBER, SERIAL_NUMBER) if the user navigates back and selects another PO.","fix":"Implement complete child field reset in PO_NUM _onExit before populating new PO header data."},{"id":"F-048","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SUBINVENTORY & LOCATOR","location":"SUBINVENTORY _onExit","issue":"Changing SUBINVENTORY does not reset or re-validate LOCATOR value if modified directly. Stale locator from previous subinventory may persist.","fix":"Add LOCATOR.reset(); and flexi.removeObject(\"LOCATOR_ID\"); in SUBINVENTORY _onExit."},{"id":"F-049","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"SERIAL_TYPE","location":"_onExit (lines 1–25)","issue":"Switching between \"Individual\" and \"Range\" leaves stale serial arrays and ranges in session objects (SERIAL_ARRAY, TEMP_HASH, RANGE_SERIAL_PARAM).","fix":"Clear all serial session objects and reset opposite serial input fields on serial type change."},{"id":"F-050","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"CANCEL","location":"_onClick (line 1)","issue":"flexi.closeApplication(true); terminates the screen without cleaning up over 60 stored session/flexi objects (e.g., PAYLOAD, PRINT_PAYLOAD, FILES_ARR_LIST, SERIAL_ARRAY, LOT_SERIAL_ARRAY, TEMP_FILE_AL). Stale objects remain in memory context.","fix":"Call a cleanup method that executes flexi.removeObject(...) on all screen keys before closing."},{"id":"F-051","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (lines 58–60)","issue":"Only INPUT_LABEL_REQUESTS is removed on page entry. Leftover data from prior cancelled or completed transactions persists across invocations.","fix":"Explicitly flush all transaction objects, arrays, and payload caches on page entry."},{"id":"F-052","parameter":"C5: Memory and object lifecycle (garbage)","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TRANSACTION_FUNC & PRINT_FUNC","location":"Functions (_script)","issue":"Large constructed JSON payloads (PAYLOAD, PRINT_PAYLOAD) and file attachments (FILES_ARR_LIST, TEMP_FILE_HASH) are retained in session after transaction completion.","fix":"Explicitly call flexi.removeObject(\"PAYLOAD\");, flexi.removeObject(\"PRINT_PAYLOAD\");, and clear attachment lists upon submission."},{"id":"F-053","parameter":"C6: Logging, debug messages and code comments","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"FUSION_PO_RECEIPT","location":"_onPageEntered (line 18)","issue":"Sensitive Data Printed in Logs: logger.info(\"Printing Value of Employee Id\"+flexi.getSessionObject(\"SCM_EMPLOYEE_ID\")); logs employee identifier directly at INFO level.","fix":"Remove or mask employee identifier in logs, or demote to logger.trace()."},{"id":"F-054","parameter":"C6: Logging, debug messages and code comments","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"TRANSACTION_FUNC","location":"_script (line 298)","issue":"Sensitive Data Printed in Logs: logger.info(\"Constructed Payload: \" + payload.toString()); dumps entire transaction payload (including item, PO, and quantity details) at INFO level.","fix":"Change to logger.trace() to avoid flooding production logs with sensitive transaction data."},{"id":"F-055","parameter":"C6: Logging, debug messages and code comments","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"PRINT_FUNC","location":"_script (line 294)","issue":"Sensitive Data Printed in Logs: logger.info(\"payload print label--->\"+flexi.getObject(\"PRINT_PAYLOAD\")); prints full label print payload at INFO level.","fix":"Demote to logger.trace()."},{"id":"F-056","parameter":"C6: Logging, debug messages and code comments","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"ITEM_NUMBER","location":"_onExit (lines 1, 2, 7)","issue":"Inappropriate log level: uses logger.warn(...) for normal flow entry (\"initializeFields function triggered.\", \"processPoLineValues function triggered.\"). Pollutes warning logs.","fix":"Change log level from warn to trace or debug."},{"id":"F-057","parameter":"C6: Logging, debug messages and code comments","status":"Needs Fix","file":"FUSION_PO_RECEIPT.json","component":"Screen-wide scripts","location":"Multiple components (PO_NUM, ITEM_DESC, SERIAL_NUMBER, etc.)","issue":"Missing Comments: 17 script routines (> 10 lines of code) contain zero comments explaining business logic, validation rules, or API integration steps.","fix":"Add method header comments and inline documentation explaining business logic and error flows."}];
-    let currentFindings = [...DEFAULT_FINDINGS];
+    let currentFindings = [];
     let selectedParam = 'ALL';
 
     // Badge styling mapping
@@ -343,8 +448,122 @@
       }
     };
 
-    // Render Table
-    
+    // Navigation and View Management
+    function showHomeView() {
+      document.getElementById('homeImportView').classList.remove('hidden');
+      document.getElementById('reviewDashboardView').classList.add('hidden');
+      
+      const badge = document.getElementById('screenBadgeContainer');
+      badge.classList.add('hidden');
+      badge.classList.remove('flex');
+      
+      const resetBtn = document.getElementById('resetToHomeBtn');
+      resetBtn.classList.add('hidden');
+      resetBtn.classList.remove('inline-flex');
+      
+      const navUpload = document.getElementById('navUploadBtn');
+      navUpload.classList.add('hidden');
+      navUpload.classList.remove('inline-flex');
+      
+      document.getElementById('exportDropdownContainer').classList.add('hidden');
+    }
+
+    function showReviewView(screenName) {
+      document.getElementById('homeImportView').classList.add('hidden');
+      document.getElementById('reviewDashboardView').classList.remove('hidden');
+      
+      const badge = document.getElementById('screenBadgeContainer');
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+      
+      const resetBtn = document.getElementById('resetToHomeBtn');
+      resetBtn.classList.remove('hidden');
+      resetBtn.classList.add('inline-flex');
+      
+      const navUpload = document.getElementById('navUploadBtn');
+      navUpload.classList.remove('hidden');
+      navUpload.classList.add('inline-flex');
+      
+      document.getElementById('exportDropdownContainer').classList.remove('hidden');
+      document.getElementById('screenNameBadge').innerText = screenName;
+    }
+
+    function resetToHome() {
+      showHomeView();
+      currentFindings = [];
+      const f1 = document.getElementById('uploadInput');
+      if (f1) f1.value = '';
+      const f2 = document.getElementById('homeFileInput');
+      if (f2) f2.value = '';
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('filterParamSelect').value = 'ALL';
+      showToast('Returned to home. Ready to import a screen.');
+    }
+
+    function loadSampleScreen() {
+      currentFindings = [...DEFAULT_FINDINGS];
+      selectedParam = 'ALL';
+      showReviewView('FUSION_PO_RECEIPT.json');
+      updateCardCounts(currentFindings);
+      renderTable(currentFindings);
+      filterByParam('ALL');
+      showToast('Loaded sample: FUSION_PO_RECEIPT.json (57 findings)');
+    }
+
+    // Drag and Drop handlers
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropZone = document.getElementById('dropZone');
+      dropZone.classList.add('border-sky-500', 'bg-sky-50/50', 'dark:bg-sky-950/30');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropZone = document.getElementById('dropZone');
+      dropZone.classList.remove('border-sky-500', 'bg-sky-50/50', 'dark:bg-sky-950/30');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropZone = document.getElementById('dropZone');
+      dropZone.classList.remove('border-sky-500', 'bg-sky-50/50', 'dark:bg-sky-950/30');
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        processUploadedFile(files[0]);
+      }
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) processUploadedFile(file);
+    }
+
+    function processUploadedFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (file.name === 'FUSION_PO_RECEIPT.json') {
+            currentFindings = [...DEFAULT_FINDINGS];
+            selectedParam = 'ALL';
+            showReviewView(file.name);
+            updateCardCounts(currentFindings);
+            renderTable(currentFindings);
+            filterByParam('ALL');
+            showToast('Loaded ' + file.name + ': 57 curated issues');
+          } else {
+            analyzeScreen(json, file.name);
+          }
+        } catch (err) {
+          alert('Invalid JSON file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function updateCardCounts(items) {
       const getCount = (p) => items.filter(i => i.parameter === p).length;
       if (document.getElementById('count-ALL')) document.getElementById('count-ALL').innerText = items.length;
@@ -355,6 +574,8 @@
       if (document.getElementById('count-c5')) document.getElementById('count-c5').innerText = getCount('C5: Memory and object lifecycle (garbage)');
       if (document.getElementById('count-c6')) document.getElementById('count-c6').innerText = getCount('C6: Logging, debug messages and code comments');
     }
+
+    // Render Table
     function renderTable(items) {
       const tbody = document.getElementById('findingsTableBody');
       const emptyState = document.getElementById('noResults');
@@ -462,7 +683,6 @@
       selectedParam = paramName;
       document.getElementById('filterParamSelect').value = paramName;
 
-      // Update Card Visuals
       document.querySelectorAll('.param-card').forEach(card => {
         card.classList.remove('glow-active', 'ring-2', 'ring-sky-500', 'border-sky-500');
         card.classList.add('border-slate-200', 'dark:border-slate-800');
@@ -504,7 +724,7 @@
       toast.classList.remove('translate-y-20', 'opacity-0');
       setTimeout(() => {
         toast.classList.add('translate-y-20', 'opacity-0');
-      }, 2200);
+      }, 2400);
     }
 
     function copyFix(text) {
@@ -590,45 +810,7 @@
       updateThemeUI(isDark);
     }
 
-        // Clear Screen & Reset
-    function clearScreen() {
-      currentFindings = [...DEFAULT_FINDINGS];
-      selectedParam = 'ALL';
-      document.getElementById('filterSearch').value = '';
-      document.getElementById('filterParamSelect').value = 'ALL';
-      document.getElementById('screenNameBadge').innerText = 'FUSION_PO_RECEIPT.json';
-      const fileInput = document.getElementById('uploadInput');
-      if (fileInput) fileInput.value = '';
-      updateCardCounts(currentFindings);
-      filterByParam('ALL');
-      showToast('Cleared screen: reset to default (FUSION_PO_RECEIPT.json)');
-    }
-
-    // File Upload & Analyzer Engine
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const json = JSON.parse(e.target.result);
-          if (file.name === 'FUSION_PO_RECEIPT.json') {
-            currentFindings = [...DEFAULT_FINDINGS];
-            document.getElementById('screenNameBadge').innerText = file.name;
-            updateCardCounts(currentFindings);
-            renderTable(currentFindings);
-            showToast('Loaded ' + file.name + ': 57 curated issues');
-          } else {
-            analyzeScreen(json, file.name);
-          }
-        } catch (err) {
-          alert('Invalid JSON file: ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-    }
-
+    // Comprehensive 6-Criteria Screen Analyzer
     function analyzeScreen(data, fileName) {
       const newFindings = [];
       let count = 1;
@@ -937,16 +1119,17 @@
       });
 
       currentFindings = newFindings;
+      selectedParam = 'ALL';
+      showReviewView(fileName);
       updateCardCounts(currentFindings);
-      document.getElementById('screenNameBadge').innerText = fileName;
       renderTable(currentFindings);
-      showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' issues found across all criteria');
+      filterByParam('ALL');
+      showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' issues found across criteria');
     }
 
-
-    // Initialize
-    updateThemeUI(document.documentElement.classList.contains('dark')); updateCardCounts(currentFindings);
-    renderTable(currentFindings);
+    // Initialize Theme & Default to Home / Import View
+    updateThemeUI(document.documentElement.classList.contains('dark'));
+    showHomeView();
   </script>
 </body>
 </html>
