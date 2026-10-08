@@ -404,7 +404,7 @@
                 <th scope="col" class="py-3 px-2.5 w-24 text-center font-semibold">Status</th>
                 <th scope="col" class="py-3 px-2.5 w-20 text-center font-semibold">Severity</th>
                 <th scope="col" class="py-3 px-3 w-36 font-semibold">File / Screen</th>
-                <th scope="col" class="py-3 px-3.5 w-44 font-semibold">Component / Field Name</th>
+                <th scope="col" class="py-3 px-3.5 min-w-[190px] font-semibold">Component / Field Name</th>
                 <th scope="col" class="py-3 px-3 w-32 font-semibold">Location</th>
                 <th scope="col" class="py-3 px-4 min-w-[300px] font-semibold">Issue Found / Audit Details</th>
                 <th scope="col" class="py-3 px-4 min-w-[300px] font-semibold">Suggested Fix / Action / Reset Snippet</th>
@@ -678,6 +678,39 @@
       return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800/80 whitespace-nowrap">Info</span>`;
     }
 
+    // Format multiple components onto individual lines
+    function formatComponentList(compStr) {
+      if (!compStr) return '';
+      if (compStr.includes('/')) {
+        const parts = compStr.split(/\s*\/\s*/).filter(p => p.trim().length > 0);
+        if (parts.length > 1) {
+          return parts.map((part, idx) => {
+            const isLast = (idx === parts.length - 1);
+            return '<div class="whitespace-nowrap">' + escapeText(part.trim()) + (!isLast ? ' /' : '') + '</div>';
+          }).join('');
+        }
+      }
+      if (compStr.includes(';')) {
+        const parts = compStr.split(/\s*;\s*/).filter(p => p.trim().length > 0);
+        if (parts.length > 1) {
+          return parts.map((part, idx) => {
+            const isLast = (idx === parts.length - 1);
+            return '<div class="whitespace-nowrap">' + escapeText(part.trim()) + (!isLast ? ' ;' : '') + '</div>';
+          }).join('');
+        }
+      }
+      if (compStr.includes(',') && !compStr.includes('&')) {
+        const parts = compStr.split(/\s*,\s*/).filter(p => p.trim().length > 0);
+        if (parts.length > 1) {
+          return parts.map((part, idx) => {
+            const isLast = (idx === parts.length - 1);
+            return '<div class="whitespace-nowrap">' + escapeText(part.trim()) + (!isLast ? ' ,' : '') + '</div>';
+          }).join('');
+        }
+      }
+      return '<div class="whitespace-nowrap">' + escapeText(compStr) + '</div>';
+    }
+
     // Render Single Consolidated Table
     function renderTable(items) {
       const tbody = document.getElementById('findingsTableBody');
@@ -694,7 +727,7 @@
 
       items.forEach((item, index) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors';
+        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors align-top';
 
         const style = PARAM_STYLES[item.parameter] || { label: item.parameter, pill: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700' };
 
@@ -724,10 +757,10 @@
           </td>
 
           <!-- Component / Field Name -->
-          <td class="py-3 px-3.5 font-mono text-[11px] font-medium">
-            <span class="px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 inline-block truncate max-w-[170px]" title="${item.component}">
-              ${item.component}
-            </span>
+          <td class="py-3 px-3.5 font-mono text-[11px] font-medium align-top">
+            <div class="px-2 py-1 rounded bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 inline-flex flex-col gap-0.5 leading-snug">
+              ${formatComponentList(item.component)}
+            </div>
           </td>
 
           <!-- Location -->
