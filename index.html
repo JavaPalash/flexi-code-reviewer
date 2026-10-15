@@ -54,10 +54,17 @@
     }
   </style>
 </head>
-<body class="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased flex flex-col transition-colors duration-200 selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen w-full bg-slate-100/90 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased flex flex-col transition-colors duration-200 selection:bg-sky-500 selection:text-white relative overflow-x-hidden">
+
+  <!-- Ambient iOS Glass Decorative Mesh Background -->
+  <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden" aria-hidden="true">
+    <div class="absolute -top-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-sky-400/20 dark:bg-sky-500/10 blur-3xl"></div>
+    <div class="absolute top-1/4 -right-32 w-[30rem] h-[30rem] rounded-full bg-indigo-400/20 dark:bg-indigo-500/10 blur-3xl"></div>
+    <div class="absolute -bottom-32 left-1/4 w-[36rem] h-[36rem] rounded-full bg-cyan-400/20 dark:bg-cyan-500/10 blur-3xl"></div>
+  </div>
 
   <!-- TOP NAVIGATION BAR -->
-  <header class="w-full sticky top-0 z-50 bg-white/95 dark:bg-slate-950/90 border-b border-slate-200 dark:border-slate-800/80 backdrop-blur-md transition-colors">
+  <header class="w-full sticky top-0 z-50 ios-glass-nav shadow-sm transition-colors">
     <div class="w-full max-w-[98%] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
       
       <!-- Brand & Title -->
@@ -89,8 +96,8 @@
           <span id="screenNameBadge">Screen</span>
         </div>
 
-        <!-- Review Mode Switcher -->
-        <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <!-- Review Mode Switcher (iOS Segmented Control) -->
+        <div class="inline-flex items-center p-1 rounded-2xl ios-glass border border-white/40 dark:border-white/10 shadow-sm">
           <button id="modeBtnComprehensive" onclick="switchReviewMode('comprehensive')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-600 text-white shadow-sm" title="Comprehensive Review: Architecture (Duplicate APIs, Resets) & C1–C7 Standards">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
             <span>Comprehensive (C1–C7)</span>
@@ -103,7 +110,7 @@
         </div>
 
         <!-- Reset Button (Visible in review dashboard - returns to Home/Import) -->
-        <button id="resetToHomeBtn" onclick="resetToHome()" class="hidden items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-400 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 transition shadow-sm" title="Reset & return to home page to import another screen">
+        <button id="resetToHomeBtn" onclick="resetToHome()" class="hidden items-center px-3.5 py-1.5 rounded-xl text-xs font-semibold ios-glass-card hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 transition shadow-sm" title="Reset & return to home page to import another screen">
           <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
           </svg>
@@ -111,7 +118,7 @@
         </button>
 
         <!-- Upload Button in Navbar (Visible in review dashboard) -->
-        <label id="navUploadBtn" class="hidden cursor-pointer items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-500 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-white transition shadow-sm">
+        <label id="navUploadBtn" class="hidden cursor-pointer items-center px-3.5 py-1.5 rounded-xl text-xs font-semibold ios-glass-card hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-white transition shadow-sm">
           <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
           </svg>
@@ -141,7 +148,7 @@
         </div>
 
         <!-- Light/Dark Mode Switcher -->
-        <button onclick="toggleTheme()" class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition shadow-sm" title="Toggle Theme">
+        <button onclick="toggleTheme()" class="p-2 rounded-xl ios-glass-card text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition shadow-sm" title="Toggle Theme">
           <svg id="themeSun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
           </svg>
@@ -175,7 +182,7 @@
       </div>
 
       <!-- Drag & Drop Upload Zone -->
-      <div id="dropZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('homeFileInput').click()" class="w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 bg-white/70 dark:bg-slate-900/60 p-8 sm:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm group">
+      <div id="dropZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('homeFileInput').click()" class="w-full rounded-3xl border-2 border-dashed border-sky-400/50 hover:border-sky-500 dark:border-slate-700 dark:hover:border-sky-400 ios-glass p-8 sm:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-sky-500/10 group">
         <div class="w-16 h-16 rounded-2xl bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800/80 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-4 group-hover:scale-110 transition">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -213,7 +220,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           
           <!-- Dimension 1: Architecture & Data Flow -->
-          <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm space-y-2">
+          <div class="p-4 rounded-2xl ios-glass-card text-left shadow-sm space-y-2">
             <div class="flex items-center space-x-2 text-cyan-600 dark:text-cyan-400 text-xs font-bold uppercase tracking-wider">
               <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
               <span>Section 1: Architecture & Data Flow</span>
@@ -226,7 +233,7 @@
           </div>
 
           <!-- Dimension 2: Code Quality & Security (C1 - C7) -->
-          <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-sm space-y-2">
+          <div class="p-4 rounded-2xl ios-glass-card text-left shadow-sm space-y-2">
             <div class="flex items-center space-x-2 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">
               <span class="w-2 h-2 rounded-full bg-purple-500"></span>
               <span>Section 2: Code Quality & Security (C1–C7)</span>
@@ -250,7 +257,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
         
         <!-- ALL FINDINGS CARD -->
-        <button onclick="filterByParam('ALL')" id="card-ALL" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-500 dark:border-sky-500 transition glow-active ring-2 ring-sky-500 shadow-sm">
+        <button onclick="filterByParam('ALL')" id="card-ALL" class="param-card text-left p-3 rounded-2xl ios-glass-card glow-active ring-2 ring-sky-500 border-sky-500 dark:border-sky-500 transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider truncate">All Findings</span>
             <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
@@ -260,7 +267,7 @@
         </button>
 
         <!-- ARCHITECTURE & FLOW CARD (Section 1) -->
-        <button onclick="filterByParam('ARCH')" id="card-arch" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('ARCH')" id="card-arch" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider truncate">Architecture</span>
             <span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
@@ -270,7 +277,7 @@
         </button>
 
         <!-- C1: Hardcoding -->
-        <button onclick="filterByParam('C1: Hardcoding')" id="card-c1" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C1: Hardcoding')" id="card-c1" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C1: Hardcoding</span>
             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -280,7 +287,7 @@
         </button>
 
         <!-- C2: API Structure -->
-        <button onclick="filterByParam('C2: API Structure')" id="card-c2" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C2: API Structure')" id="card-c2" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C2: API Structure</span>
             <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
@@ -290,7 +297,7 @@
         </button>
 
         <!-- C3: Object References -->
-        <button onclick="filterByParam('C3: Object References')" id="card-c3" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C3: Object References')" id="card-c3" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C3: Object Ref</span>
             <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
@@ -300,7 +307,7 @@
         </button>
 
         <!-- C4: Exception Handling -->
-        <button onclick="filterByParam('C4: Exception Handling')" id="card-c4" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C4: Exception Handling')" id="card-c4" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C4: Exceptions</span>
             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
@@ -310,7 +317,7 @@
         </button>
 
         <!-- C5: Memory Lifecycle -->
-        <button onclick="filterByParam('C5: Memory Lifecycle')" id="card-c5" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C5: Memory Lifecycle')" id="card-c5" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C5: Memory</span>
             <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
@@ -320,7 +327,7 @@
         </button>
 
         <!-- C6: Logging/Comments -->
-        <button onclick="filterByParam('C6: Logging/Comments')" id="card-c6" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C6: Logging/Comments')" id="card-c6" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C6: Logging</span>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -330,7 +337,7 @@
         </button>
 
         <!-- C7: Deprecated APIs -->
-        <button onclick="filterByParam('C7: Deprecated APIs')" id="card-c7" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+        <button onclick="filterByParam('C7: Deprecated APIs')" id="card-c7" class="param-card text-left p-3 rounded-2xl ios-glass-card hover:scale-[1.02] hover:shadow-md transition-all duration-200 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 truncate">C7: Deprecated</span>
             <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-500"></span>
@@ -449,7 +456,7 @@
   </main>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl bg-sky-600 text-white">
+  <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center px-4 py-3 rounded-2xl text-xs font-semibold shadow-2xl ios-glass border border-white/40 dark:border-white/10 text-slate-900 dark:text-white">
     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
     </svg>
@@ -513,6 +520,27 @@
         pill: 'bg-fuchsia-50 dark:bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-500/30'
       }
     };
+
+
+    // Extract Page ID from Flexi screen definition export
+    function extractPageId(data, fallbackName) {
+      if (data) {
+        if (data.properties && data.properties.id) return data.properties.id;
+        if (data.properties && data.properties.name) return data.properties.name;
+        if (data.id) return data.id;
+        if (data.name) return data.name;
+        if (data.children && Array.isArray(data.children)) {
+          for (const c of data.children) {
+            if (c.type === 'Page' && c.properties?.id) return c.properties.id;
+            if (c.properties?.id) return c.properties.id;
+          }
+        }
+      }
+      if (fallbackName) {
+        return fallbackName.replace(/\.json$/i, '');
+      }
+      return 'FUSION_PO_RECEIPT';
+    }
 
     function isArchParam(p) {
       return p === 'API - Duplicate Check' || p === 'API - Usage/Unused' || p === 'API - Dynamic/Empty URL' || p === 'Field Dependency & Reset';
@@ -1741,10 +1769,10 @@ function switchReviewMode(mode) {
 
   if (mode === 'focused') {
     if (btnFoc) {
-      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-white shadow-sm';
+      btnFoc.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-amber-500 text-white shadow-md shadow-amber-500/20';
     }
     if (btnComp) {
-      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      btnComp.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
     }
     if (cardsComp) cardsComp.classList.add('hidden');
     if (cardsFoc) cardsFoc.classList.remove('hidden');
@@ -1774,10 +1802,10 @@ function switchReviewMode(mode) {
     showToast('Switched to Focused 5-Point Static Analysis mode');
   } else {
     if (btnComp) {
-      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-600 text-white shadow-sm';
+      btnComp.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-sky-600 text-white shadow-md shadow-sky-500/20';
     }
     if (btnFoc) {
-      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      btnFoc.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
     }
     if (cardsComp) cardsComp.classList.remove('hidden');
     if (cardsFoc) cardsFoc.classList.add('hidden');
@@ -1820,6 +1848,7 @@ function switchReviewMode(mode) {
 // 5. LOV Fields with "Add%" Not Enabled
 // =============================================================================
 function analyzeFocused5Checks(data, fileName) {
+  const pageId = extractPageId(data, fileName);
   const newFindings = [];
   let count = 1;
 
@@ -1829,7 +1858,7 @@ function analyzeFocused5Checks(data, fileName) {
       parameter: param,
       status: status,
       severity: severity,
-      file: fileName,
+      file: pageId,
       component: comp,
       location: loc,
       issue: issue,
@@ -2068,11 +2097,11 @@ function analyzeFocused5Checks(data, fileName) {
 
   currentFindings = newFindings;
   selectedParam = 'ALL';
-  showReviewView(fileName);
+  showReviewView(pageId);
   updateCardCounts(currentFindings);
   renderTable(currentFindings);
   filterByParam('ALL');
-  showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' findings for Focused 5-Point Audit');
+  showToast('Analyzed screen [' + pageId + ']: ' + newFindings.length + ' findings for Focused 5-Point Audit');
 }
 
 
