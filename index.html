@@ -89,6 +89,19 @@
           <span id="screenNameBadge">Screen</span>
         </div>
 
+        <!-- Review Mode Switcher -->
+        <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <button id="modeBtnComprehensive" onclick="switchReviewMode('comprehensive')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-600 text-white shadow-sm" title="Comprehensive Review: Architecture (Duplicate APIs, Resets) & C1–C7 Standards">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span>Comprehensive (C1–C7)</span>
+          </button>
+          <button id="modeBtnFocused" onclick="switchReviewMode('focused')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Focused 5-Point Static Analysis: API Limit, Version, Literals, %, LOV Add%">
+            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+            <span>Focused 5-Point Audit</span>
+            <span class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">New</span>
+          </button>
+        </div>
+
         <!-- Reset Button (Visible in review dashboard - returns to Home/Import) -->
         <button id="resetToHomeBtn" onclick="resetToHome()" class="hidden items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-400 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 transition shadow-sm" title="Reset & return to home page to import another screen">
           <svg class="w-3.5 h-3.5 mr-1.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1459,7 +1472,611 @@
       showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' consolidated findings across all sections');
     }
 
-    // Initialize Theme & Default to Home / Import View
+// =============================================================================
+// FOCUSED 5-POINT STATIC ANALYSIS AUDIT DATA & ENGINE
+// Checks:
+// 1. API Limit Missing
+// 2. Hardcoded API Version
+// 3. Hardcoded Literal Strings (Hardcoded Literals)
+// 4. Explicit % in API Query Parameters (Explicit % in API Query)
+// 5. LOV Fields with "Add%" Not Enabled (LOV Add% Not Enabled)
+// =============================================================================
+
+const FOCUSED_5_SAMPLE_FINDINGS = [
+  // ---------------------------------------------------------------------------
+  // CHECK 1: API LIMIT MISSING
+  // ---------------------------------------------------------------------------
+  {
+    id: "F5-001",
+    parameter: "API Limit Missing",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "RECEIPT_SUMMARY_WS",
+    location: "_request",
+    issue: "Missing limit= parameter in REST request URL '/fscmRestApi/resources/latest/receivingReceiptRequests'. Unbounded query may degrade mobile performance and server response times.",
+    fix: "Add 'limit=50' to query parameters."
+  },
+  {
+    id: "F5-002",
+    parameter: "API Limit Missing",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PO_LINES_QUERY_WS",
+    location: "_request",
+    issue: "Standalone WebService component query missing limit= parameter in _request definition.",
+    fix: "Add 'limit=25' (or appropriate page limit) to request parameters."
+  },
+  {
+    id: "F5-003",
+    parameter: "API Limit Missing",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PO_HEADER\n_onExit",
+    location: "_onExit (line 14)",
+    issue: "Script-assembled REST query executed via callWebService without limit= parameter: url = base + '?q=OrderNumber=' + val.",
+    fix: "Append '&limit=50' to the dynamically assembled query string."
+  },
+  {
+    id: "F5-004",
+    parameter: "API Limit Missing",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "ORG_BU_WEBSERVICE",
+    location: "_request",
+    issue: "Exempted from limit check per architectural rules (lookup master cache service).",
+    fix: "None"
+  },
+  {
+    id: "F5-005",
+    parameter: "API Limit Missing",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "SUBINV_LOV_WS",
+    location: "_request",
+    issue: "Direct LOV WebService bound to SUBINVENTORY_LOV; pagination managed server-side by Flexi runtime.",
+    fix: "None"
+  },
+
+  // ---------------------------------------------------------------------------
+  // CHECK 2: HARDCODED API VERSION
+  // ---------------------------------------------------------------------------
+  {
+    id: "F5-006",
+    parameter: "Hardcoded API Version",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "SHIP_METHOD_WEBSERVICE\nLINE_CHANGE_REQ_WS\nBACKORDER_ALL_WS",
+    location: "_wsurl",
+    issue: "Literal hardcoded REST API version '/11.13.18.05/' found in URL path across 3 WebServices. Versions found on this page: /latest/ (8 services) and /11.13.18.05/ (3 services). Mixed versions detected on one page.",
+    fix: "Align all services to a single approved version (e.g. /resources/latest/) or centralize version into a session variable."
+  },
+  {
+    id: "F5-007",
+    parameter: "Hardcoded API Version",
+    status: "Cannot Verify",
+    severity: "Low",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "LPN_WEBSERVICE\nLPN_CHECK_WEB_SERVICE",
+    location: "_wsurl",
+    issue: "Both services take their URL from library reference 'com.intellinum.advancedInventory v7'; version segment is not visible in export. No approved version list provided in context.",
+    fix: "Provide approved project version list to confirm if referenced version conforms to standards."
+  },
+  {
+    id: "F5-008",
+    parameter: "Hardcoded API Version",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PO_LINES_QUERY_WS\nRECEIPT_SUMMARY_WS",
+    location: "_wsurl",
+    issue: "WebServices consistently use standard approved '/resources/latest/' endpoint path.",
+    fix: "None"
+  },
+
+  // ---------------------------------------------------------------------------
+  // CHECK 3: HARDCODED LITERAL STRINGS
+  // ---------------------------------------------------------------------------
+  {
+    id: "F5-009",
+    parameter: "Hardcoded Literals",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PACKING_LIST_WS",
+    location: "_request (SOAP)",
+    issue: "Hardcoded jobDefinition 'WshPackingListBIPJob', package path '/oracle/apps/ess/scm/shipping/shipConfirm/deliveries/', and static wsa:MessageID 'xy123223al34'.",
+    fix: "Move job name and package path to ${VARIABLES}; generate a unique MessageID per call."
+  },
+  {
+    id: "F5-010",
+    parameter: "Hardcoded Literals",
+    status: "Needs Fix",
+    severity: "Low",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "ATTACHMENT_SCRIPT",
+    location: "_onClick",
+    issue: "Hardcoded fallback path '/app/flexi/FlexiServer' found in event script.",
+    fix: "Move to a session or configuration variable '${FlexiConfig.serverPath}'."
+  },
+  {
+    id: "F5-011",
+    parameter: "Hardcoded Literals",
+    status: "Needs Fix",
+    severity: "Low",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "LPN_WEBSERVICE\nTO_LPN_WS",
+    location: "_onCallingRequest",
+    issue: "Literal filter 'PackingUnitContext = 5' repeated in two services without explaining comment. (Item control codes excluded per global rules).",
+    fix: "Define once as a named constant or document '5 = shipping context'."
+  },
+  {
+    id: "F5-012",
+    parameter: "Hardcoded Literals",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "SERIAL_NUM_INPUT",
+    location: "_onExit",
+    issue: "Item control codes (SERIAL_CONTROL_CODE == 2, 5) and shelf-life / locator-type codes are excluded per global rules.",
+    fix: "None (Exempt)"
+  },
+  {
+    id: "F5-013",
+    parameter: "Hardcoded Literals",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "LOGIN_AUTH_WS",
+    location: "_request",
+    issue: "References to ORACLE_FUSION_URL, ORACLE_FUSION_USERNAME and ORACLE_FUSION_PASSWORD are excluded per global rules.",
+    fix: "None (Exempt)"
+  },
+
+  // ---------------------------------------------------------------------------
+  // CHECK 4: EXPLICIT % IN API QUERY PARAMETERS
+  // ---------------------------------------------------------------------------
+  {
+    id: "F5-014",
+    parameter: "Explicit % in API Query",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PO_LOOKUP_WS",
+    location: "_request",
+    issue: "Query contains explicit wildcard: q=OrderNumber LIKE '%100234%'. Fusion REST API supports wildcard matching without an explicit %; sending explicit % causes full table scan on Fusion DB.",
+    fix: "Remove leading '%' wildcard or use prefix-only matching: q=OrderNumber LIKE '100234%'."
+  },
+  {
+    id: "F5-015",
+    parameter: "Explicit % in API Query",
+    status: "Needs Fix",
+    severity: "Low",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "SUPPLIER_SEARCH_WS",
+    location: "_request",
+    issue: "Query contains explicit wildcard: q=SupplierName LIKE '%ACME%'.",
+    fix: "Replace explicit leading '%' wildcard with exact match or indexed prefix token."
+  },
+  {
+    id: "F5-016",
+    parameter: "Explicit % in API Query",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "ITEM_SEARCH_WS",
+    location: "_request",
+    issue: "No explicit % wildcards found in request query string.",
+    fix: "None"
+  },
+
+  // ---------------------------------------------------------------------------
+  // CHECK 5: LOV FIELDS WITH \"Add%\" NOT ENABLED
+  // ---------------------------------------------------------------------------
+  {
+    id: "F5-017",
+    parameter: "LOV Add% Not Enabled",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "PO_HEADER_LOV",
+    location: "Properties (_add)",
+    issue: "Add% is disabled (_add is false). LOV does not automatically append % prefix wildcard to operator search input, requiring exact match.",
+    fix: "Enable _add (set \"_add\": true) on LOV component, or configure bound query filter: q=OrderNumber LIKE '${THIS_FIELD}%'."
+  },
+  {
+    id: "F5-018",
+    parameter: "LOV Add% Not Enabled",
+    status: "Needs Fix",
+    severity: "Med",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "SUBINVENTORY_LOV",
+    location: "Properties (_add)",
+    issue: "Add% property _add is missing and bound WebService query lacks prefix wildcard on search token.",
+    fix: "Set \"_add\": true on SUBINVENTORY_LOV to enable progressive prefix search."
+  },
+  {
+    id: "F5-019",
+    parameter: "LOV Add% Not Enabled",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "ITEM_LOV",
+    location: "Properties (_add)",
+    issue: "Add% enabled: _add property is explicitly set to true. Typed search input automatically sends prefix wildcard.",
+    fix: "None"
+  },
+  {
+    id: "F5-020",
+    parameter: "LOV Add% Not Enabled",
+    status: "OK",
+    severity: "Info",
+    file: "FUSION_PO_RECEIPT.json",
+    component: "LOCATOR_LOV",
+    location: "Properties (_request)",
+    issue: "Add% prefix wildcard configured directly in bound WebService query filter: q=Locator LIKE '${THIS_FIELD}%'.",
+    fix: "None"
+  }
+];
+
+// Active Review Mode state: 'comprehensive' | 'focused'
+let currentReviewMode = 'comprehensive';
+let currentRawScreenJson = null;
+let currentLoadedFileName = 'FUSION_PO_RECEIPT.json';
+
+// Function to switch between Comprehensive (C1-C7) and Focused 5-Point Audit modes
+function switchReviewMode(mode) {
+  currentReviewMode = mode;
+
+  const btnComp = document.getElementById('modeBtnComprehensive');
+  const btnFoc = document.getElementById('modeBtnFocused');
+  const cardsComp = document.getElementById('paramCardsComprehensive');
+  const cardsFoc = document.getElementById('paramCardsFocused');
+  const paramSelect = document.getElementById('filterParamSelect');
+
+  if (mode === 'focused') {
+    if (btnFoc) {
+      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-white shadow-sm';
+    }
+    if (btnComp) {
+      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+    }
+    if (cardsComp) cardsComp.classList.add('hidden');
+    if (cardsFoc) cardsFoc.classList.remove('hidden');
+
+    // Update filter dropdown for Focused 5-Point mode
+    if (paramSelect) {
+      paramSelect.innerHTML = `
+        <option value="ALL">All Focused Checks (5)</option>
+        <option value="API Limit Missing">1. API Limit Missing</option>
+        <option value="Hardcoded API Version">2. Hardcoded API Version</option>
+        <option value="Hardcoded Literals">3. Hardcoded Literals</option>
+        <option value="Explicit % in API Query">4. Explicit % in API Query</option>
+        <option value="LOV Add% Not Enabled">5. LOV Add% Not Enabled</option>
+      `;
+    }
+
+    // Run dynamic analysis if raw JSON exists, otherwise load curated sample
+    if (currentRawScreenJson) {
+      analyzeFocused5Checks(currentRawScreenJson, currentLoadedFileName);
+    } else {
+      currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
+      selectedParam = 'ALL';
+      updateCardCounts(currentFindings);
+      renderTable(currentFindings);
+      filterByParam('ALL');
+    }
+    showToast('Switched to Focused 5-Point Static Analysis mode');
+  } else {
+    if (btnComp) {
+      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-600 text-white shadow-sm';
+    }
+    if (btnFoc) {
+      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+    }
+    if (cardsComp) cardsComp.classList.remove('hidden');
+    if (cardsFoc) cardsFoc.classList.add('hidden');
+
+    // Update filter dropdown for Comprehensive mode
+    if (paramSelect) {
+      paramSelect.innerHTML = `
+        <option value="ALL">All Parameters (Consolidated)</option>
+        <option value="ARCH">Section 1: Architecture & Data Flow</option>
+        <option value="C1: Hardcoding">C1: Hardcoding</option>
+        <option value="C2: API Structure">C2: API Structure</option>
+        <option value="C3: Object References">C3: Object References</option>
+        <option value="C4: Exception Handling">C4: Exception Handling</option>
+        <option value="C5: Memory Lifecycle">C5: Memory Lifecycle</option>
+        <option value="C6: Logging/Comments">C6: Logging/Comments</option>
+        <option value="C7: Deprecated APIs">C7: Deprecated APIs</option>
+      `;
+    }
+
+    if (currentRawScreenJson) {
+      analyzeScreenExport(currentRawScreenJson, currentLoadedFileName);
+    } else {
+      currentFindings = [...DEFAULT_FINDINGS];
+      selectedParam = 'ALL';
+      updateCardCounts(currentFindings);
+      renderTable(currentFindings);
+      filterByParam('ALL');
+    }
+    showToast('Switched to Comprehensive Review mode (C1–C7 & Architecture)');
+  }
+}
+
+// =============================================================================
+// DYNAMIC 5-POINT STATIC ANALYZER FOR IMPORTED FLEXI SCREEN EXPORTS
+// Covers ONLY:
+// 1. API Limit Missing
+// 2. Hardcoded API Version
+// 3. Hardcoded Literal Strings (with Global Exclusions)
+// 4. Explicit % in API Query Parameters
+// 5. LOV Fields with "Add%" Not Enabled
+// =============================================================================
+function analyzeFocused5Checks(data, fileName) {
+  const newFindings = [];
+  let count = 1;
+
+  function add(param, comp, loc, issue, fix, status = 'Needs Fix', severity = 'Med') {
+    newFindings.push({
+      id: 'F5-' + String(count++).padStart(3, '0'),
+      parameter: param,
+      status: status,
+      severity: severity,
+      file: fileName,
+      component: comp,
+      location: loc,
+      issue: issue,
+      fix: fix
+    });
+  }
+
+  function walk(node) {
+    let list = [node];
+    if (node.children && Array.isArray(node.children)) {
+      for (const c of node.children) list = list.concat(walk(c));
+    }
+    return list;
+  }
+  const allNodes = walk(data);
+
+  const webServices = [];
+  const lovs = [];
+  const scripts = [];
+
+  allNodes.forEach(n => {
+    const id = n.properties?.id || n.properties?.name || n.name || n.type;
+    if (n.type === 'WebService') webServices.push(n);
+    if (n.type === 'LOV') lovs.push(n);
+
+    if (n.properties) {
+      for (const [k, v] of Object.entries(n.properties)) {
+        if (typeof v === 'string' && (k.startsWith('_on') || k === '_script' || k === '_inputProcessor')) {
+          scripts.push({ compId: id, compType: n.type, eventName: k, code: v });
+        }
+      }
+    }
+  });
+
+  const lovBoundWsIds = new Set();
+  lovs.forEach(lov => {
+    if (lov.properties?._webService) lovBoundWsIds.add(lov.properties._webService);
+  });
+
+  // -----------------------------------------------------------------
+  // CHECK 1: API LIMIT MISSING
+  // Scope: every WebService component and every script-built REST call
+  // EXCLUDE direct LOV fields (managed server-side by Flexi)
+  // EXCLUDE ORG_BU_WEBSERVICE
+  // -----------------------------------------------------------------
+  let check1Count = 0;
+  webServices.forEach(ws => {
+    const id = ws.properties?.id || ws.properties?.name || 'WebService';
+    if (id === 'ORG_BU_WEBSERVICE') {
+      add('API Limit Missing', id, 'Properties (_request)', 'Exempted from limit check per architectural rules (lookup master cache service).', 'None', 'OK', 'Info');
+      return;
+    }
+
+    const url = (ws.properties?._wsurl || '').trim();
+    const req = (ws.properties?._request || '').trim();
+    const cleanUrl = url.split('?')[0].split(';')[0].replace(/\/+$/, '');
+
+    const isScriptCalled = scripts.some(s => s.code.includes(id + '.callWebService'));
+    const isDirectLov = lovBoundWsIds.has(id);
+
+    // EXCLUDE direct LOV fields if not called from script
+    if (isDirectLov && !isScriptCalled) {
+      add('API Limit Missing', id, 'Properties (_request)', 'Direct LOV WebService; pagination managed server-side by Flexi runtime.', 'None', 'OK', 'Info');
+      return;
+    }
+
+    const hasLimit = /limit=/i.test(req) || /limit=/i.test(url);
+    if (!hasLimit) {
+      check1Count++;
+      add('API Limit Missing', id, 'Properties (_request)', 'Missing limit= parameter in standalone REST API request. Normalized endpoint: ' + (cleanUrl || '(empty)') + '. Current query: ' + (req || '(empty)'), 'Add limit=50 (or appropriate business limit) to request parameters.', 'Needs Fix', 'Med');
+    } else {
+      add('API Limit Missing', id, 'Properties (_request)', 'REST API specifies explicit limit parameter.', 'None', 'OK', 'Info');
+    }
+  });
+
+  // Script-built REST calls
+  scripts.forEach(s => {
+    const wsCalls = s.code.match(/([a-zA-Z0-9_]+)\.callWebService\s*\(/g);
+    if (wsCalls) {
+      const lines = s.code.split('\n');
+      lines.forEach((line, lIdx) => {
+        if (line.includes('_request') && line.includes('=') && !line.includes('limit=') && !line.includes('//')) {
+          if (!line.includes('ORG_BU_WEBSERVICE')) {
+            check1Count++;
+            add('API Limit Missing', s.compId, s.eventName + ' (line ' + (lIdx + 1) + ')', 'Script-assembled query string missing limit= parameter: ' + line.trim(), 'Add &limit=50 to the query string.', 'Needs Fix', 'Med');
+          }
+        }
+      });
+    }
+  });
+
+  // -----------------------------------------------------------------
+  // CHECK 2: HARDCODED API VERSION
+  // Scope: every WebService _wsurl and every URL string in scripts
+  // -----------------------------------------------------------------
+  let check2Count = 0;
+  const versionsOnPage = new Map();
+  webServices.forEach(ws => {
+    const id = ws.properties?.id || ws.properties?.name || 'WebService';
+    const url = (ws.properties?._wsurl || '').trim();
+
+    const vMatch = url.match(/\/resources\/([^\/]+)\//i);
+    if (vMatch) {
+      const ver = vMatch[1];
+      if (!versionsOnPage.has(ver)) versionsOnPage.set(ver, []);
+      versionsOnPage.get(ver).push(id);
+
+      if (ver !== 'latest') {
+        check2Count++;
+        add('Hardcoded API Version', id, 'Properties (_wsurl)', 'Literal hardcoded REST API version segment \'' + ver + '\' found in URL path: ' + url + '.', 'Move version into a single shared ${API_VERSION} token/object or standardize to /resources/latest/.', 'Needs Fix', 'Med');
+      }
+    } else if (url && !url.startsWith('${') && !url.includes('/resources/')) {
+      check2Count++;
+      add('Hardcoded API Version', id, 'Properties (_wsurl)', 'Missing standard REST API version segment in URL path: ' + url, 'Define standard version segment (e.g. /resources/latest/) in URL path.', 'Needs Fix', 'Med');
+    }
+  });
+
+  if (versionsOnPage.size > 1) {
+    check2Count++;
+    const vList = [...versionsOnPage.entries()].map(([v, ids]) => v + ' (' + ids.length + ' services)').join(', ');
+    add('Hardcoded API Version', 'Screen-wide WebServices', 'Properties (_wsurl)', 'Mixed REST API version segments used across page: ' + vList + '. Distinct versions: ' + versionsOnPage.size + '.', 'Align all REST services to one consistent approved version across the page.', 'Needs Fix', 'Med');
+  } else if (versionsOnPage.size === 1 && versionsOnPage.has('latest')) {
+    add('Hardcoded API Version', 'Screen-wide WebServices', 'Properties (_wsurl)', 'All WebServices consistently use standard /resources/latest/ endpoint.', 'None', 'OK', 'Info');
+  }
+
+  // -----------------------------------------------------------------
+  // CHECK 3: HARDCODED LITERAL STRINGS
+  // Global Exclusions: Item controls (lot, serial, shelf-life, locator-type),
+  // payload fields, ORACLE_FUSION_URL / USERNAME / PASSWORD
+  // -----------------------------------------------------------------
+  let check3Count = 0;
+  scripts.forEach(s => {
+    // Fallback paths
+    if (s.code.includes('/app/flexi/FlexiServer') || s.code.includes('http://') || s.code.includes('https://')) {
+      const m = s.code.match(/(?:https?:\/\/|\/app\/flexi)[a-zA-Z0-9_\/\.-]+/);
+      if (m && !m[0].includes('ORACLE_FUSION_URL')) {
+        check3Count++;
+        add('Hardcoded Literals', s.compId, s.eventName, 'Hardcoded URL/path string literal: \'' + m[0] + '\'.', 'Move to a session or configuration variable.', 'Needs Fix', 'Low');
+      }
+    }
+
+    // Inline unexplained status/business codes
+    const statusMatches = s.code.matchAll(/(?:equals|putObject)\s*\(\s*["']([A-Z0-9_]{1,10})["']\s*\)/g);
+    for (const sm of statusMatches) {
+      const val = sm[1];
+      // Check Global Exclusions
+      if (val === 'ORACLE_FUSION_URL' || val === 'ORACLE_FUSION_USERNAME' || val === 'ORACLE_FUSION_PASSWORD') continue;
+      if (s.code.includes('SERIAL_CONTROL_CODE') || s.code.includes('LOT_CONTROL_CODE') || s.code.includes('LOCATOR_CONTROL')) continue;
+
+      if (val === 'APPROVED' || val === 'CLOSED' || val === 'OP' || val === 'Y') {
+        check3Count++;
+        add('Hardcoded Literals', s.compId, s.eventName, 'Unexplained inline business/status code literal: \'' + val + '\' without constant or explanatory comment.', 'Define as named constant or add explanatory comment.', 'Needs Fix', 'Low');
+        break;
+      }
+    }
+  });
+
+  webServices.forEach(ws => {
+    const id = ws.properties?.id || ws.properties?.name || 'WebService';
+    const req = (ws.properties?._request || '');
+    if (req.includes("LineStatusCode='Y'") || req.includes('LineStatusCode="Y"')) {
+      check3Count++;
+      add('Hardcoded Literals', id, 'Properties (_request)', "Literal filter LineStatusCode='Y' without explaining comment.", "Define as named constant or document code meaning.", 'Needs Fix', 'Low');
+    }
+  });
+
+  // Global exclusions note
+  add('Hardcoded Literals', 'Global Exclusion Check', 'Page Definition', 'Item control codes (serial, lot, locator-type) and ORACLE_FUSION_* credentials excluded per global audit rules.', 'None', 'OK', 'Info');
+
+  // -----------------------------------------------------------------
+  // CHECK 4: EXPLICIT % IN API QUERY PARAMETERS
+  // Scope: query strings of all WebService components and script queries
+  // -----------------------------------------------------------------
+  let check4Count = 0;
+  webServices.forEach(ws => {
+    const id = ws.properties?.id || ws.properties?.name || 'WebService';
+    const req = (ws.properties?._request || '');
+    const url = (ws.properties?._wsurl || '');
+
+    if (req.includes('%') || url.includes('%')) {
+      const match = req.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i) || url.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i);
+      const querySnippet = match ? match[0] : (req || url);
+      check4Count++;
+      add('Explicit % in API Query', id, 'Properties (_request)', 'Explicit % wildcard detected in REST query filter: ' + querySnippet + '. Fusion REST supports wildcard matching without explicit %; explicit % can cause full table scan on Fusion DB.', 'Remove explicit % wildcard or use prefix-only indexed token.', 'Needs Fix', 'Med');
+    }
+  });
+
+  scripts.forEach(s => {
+    if (s.code.includes('LIKE') && s.code.includes('%')) {
+      const m = s.code.match(/LIKE\s+['"][^'"]*%[^'"]*['"]/i);
+      if (m) {
+        check4Count++;
+        add('Explicit % in API Query', s.compId, s.eventName, 'Script-assembled LIKE query containing % wildcard: ' + m[0], 'Remove explicit % wildcard or use prefix-only indexed token.', 'Needs Fix', 'Med');
+      }
+    }
+  });
+
+  if (check4Count === 0) {
+    add('Explicit % in API Query', 'Screen WebServices', 'Properties (_request)', 'No findings for Explicit % in API Query: no explicit % wildcards found in API requests.', 'None', 'OK', 'Info');
+  }
+
+  // -----------------------------------------------------------------
+  // CHECK 5: LOV FIELDS WITH "Add%" NOT ENABLED
+  // Scope: every component of type LOV
+  // -----------------------------------------------------------------
+  let check5Count = 0;
+  lovs.forEach(lov => {
+    const id = lov.properties?.id || lov.properties?.name || 'LOV';
+    const addProp = lov.properties?._add;
+    const wsId = lov.properties?._webService;
+    const boundWs = webServices.find(w => (w.properties?.id || w.properties?.name) === wsId);
+    const req = boundWs?.properties?._request || '';
+
+    // Condition 1: _add is explicitly true
+    if (addProp === true || addProp === 'true') {
+      add('LOV Add% Not Enabled', id, 'Properties (_add)', 'Add% enabled: _add property is true. Typed search value is automatically sent with prefix wildcard.', 'None', 'OK', 'Info');
+    } else {
+      // Check if bound query has LIKE '${THIS_FIELD}%' or LIKE '${<LOV_ID>}%'
+      const hasPrefixWildcard = req.includes("LIKE '${" + id + "}%'") || req.includes('LIKE "${' + id + '}%"') || req.includes("LIKE '${THIS_FIELD}%'");
+
+      if (hasPrefixWildcard) {
+        add('LOV Add% Not Enabled', id, 'Properties', 'Add% prefix wildcard configured via bound WebService query filter (' + wsId + ').', 'None', 'OK', 'Info');
+      } else {
+        check5Count++;
+        const issueDetails = (addProp === false || addProp === 'false') ? 
+          'Add% is disabled (_add is false). LOV does not append % prefix wildcard to search input.' :
+          'Add% property _add is missing and bound query lacks prefix wildcard on LOV field token.';
+        add('LOV Add% Not Enabled', id, 'Properties (_add)', issueDetails + ' Bound WebService: ' + (wsId || '(none)') + '.', 'Enable _add (set "_add": true) on LOV component, or configure filter: q=<DisplayColumn> LIKE \'${THIS_FIELD}%\'', 'Needs Fix', 'Med');
+      }
+    }
+  });
+
+  if (check5Count === 0 && lovs.length === 0) {
+    add('LOV Add% Not Enabled', 'Screen LOVs', 'Properties (_add)', 'No findings for LOV Add% Not Enabled: no LOV components present on screen.', 'None', 'OK', 'Info');
+  }
+
+  currentFindings = newFindings;
+  selectedParam = 'ALL';
+  showReviewView(fileName);
+  updateCardCounts(currentFindings);
+  renderTable(currentFindings);
+  filterByParam('ALL');
+  showToast('Analyzed ' + fileName + ': ' + newFindings.length + ' findings for Focused 5-Point Audit');
+}
+
+
+        // Initialize Theme & Default to Home / Import View
     updateThemeUI(document.documentElement.classList.contains('dark'));
     showHomeView();
   </script>
