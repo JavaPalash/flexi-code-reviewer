@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flexi Technical Code Reviewer — Gold Standard</title>
   <script>
-    // Inline theme check to prevent flash of wrong theme
-    if (localStorage.getItem('theme') === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
+    // Inline theme check (defaults to clean FlexiPro Studio theme, respects dark toggle)
+    if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   </script>
   <!-- Tailwind CSS CDN -->
@@ -52,9 +52,16 @@
     .glow-active {
       box-shadow: 0 0 15px -2px rgba(14, 165, 233, 0.35);
     }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+      40% { transform: translateY(-4px); opacity: 1; }
+    }
+    .dot-1 { animation: dotBounce 1.4s infinite ease-in-out; }
+    .dot-2 { animation: dotBounce 1.4s infinite ease-in-out 0.2s; }
+    .dot-3 { animation: dotBounce 1.4s infinite ease-in-out 0.4s; }
   </style>
 </head>
-<body class="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased flex flex-col transition-colors duration-200 selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen w-full bg-[#f8fafc] dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased flex flex-col transition-colors duration-200 selection:bg-sky-500 selection:text-white">
 
   <!-- TOP NAVIGATION BAR -->
   <header class="w-full sticky top-0 z-50 bg-white/95 dark:bg-slate-950/90 border-b border-slate-200 dark:border-slate-800/80 backdrop-blur-md transition-colors">
@@ -62,21 +69,19 @@
       
       <!-- Brand & Title -->
       <div class="flex items-center space-x-3.5 cursor-pointer" onclick="resetToHome()" title="Go to Home / Import Screen">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
+        <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-1">
+          <img src="./logo.png" alt="Logo" class="w-8 h-8 object-contain" onerror="this.parentElement.innerHTML='<span class=\'text-base font-extrabold text-amber-500\'>FP</span>'">
         </div>
         <div>
           <div class="flex items-center space-x-2.5">
             <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-              Flexi Technical Code Reviewer
+              FlexiPro Studio AI
             </h1>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
-              Gold Standard Review
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30 shadow-xs">
+              Gold
             </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Architecture & Data Flow • Code Quality, Security & Standards (C1–C7)</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Flexi Code Reviewer • Architecture & Code Quality Standards (C1–C7)</p>
         </div>
       </div>
 
@@ -247,7 +252,7 @@
     <div id="reviewDashboardView" class="hidden flex-1 flex flex-col space-y-4">
 
       <!-- METRICS & PARAMETERS CAROUSEL/GRID (Section 1 + C1 to C7) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+      <div id="paramCardsComprehensive" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
         
         <!-- ALL FINDINGS CARD -->
         <button onclick="filterByParam('ALL')" id="card-ALL" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-500 dark:border-sky-500 transition glow-active ring-2 ring-sky-500 shadow-sm">
@@ -339,6 +344,69 @@
           <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">API & Framework</div>
         </button>
 
+      </div>
+
+      <!-- FOCUSED 5-POINT CARDS (Shown when mode is focused) -->
+      <div id="paramCardsFocused" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+        <!-- ALL FOCUSED -->
+        <button onclick="filterByParam('ALL')" id="card-foc-ALL" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-500 dark:border-amber-500 transition glow-active ring-2 ring-amber-500 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider truncate">All Checks (5)</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-900 dark:text-white" id="count-foc-ALL">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">Focused Audit</div>
+        </button>
+
+        <!-- 1. API Limit Missing -->
+        <button onclick="filterByParam('API Limit Missing')" id="card-foc-1" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 truncate">1. Limit Missing</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-foc-1">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">limit=&lt;n&gt; Audit</div>
+        </button>
+
+        <!-- 2. Hardcoded API Version -->
+        <button onclick="filterByParam('Hardcoded API Version')" id="card-foc-2" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 truncate">2. API Version</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-foc-2">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">Hardcoded REST Vers</div>
+        </button>
+
+        <!-- 3. Hardcoded Literals -->
+        <button onclick="filterByParam('Hardcoded Literals')" id="card-foc-3" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-orange-600 dark:text-orange-400 truncate">3. Literals</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-foc-3">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">Strings & Codes</div>
+        </button>
+
+        <!-- 4. Explicit % in API Query -->
+        <button onclick="filterByParam('Explicit % in API Query')" id="card-foc-4" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 truncate">4. Explicit % Query</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-foc-4">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">Prefix Wildcards</div>
+        </button>
+
+        <!-- 5. LOV Add% Not Enabled -->
+        <button onclick="filterByParam('LOV Add% Not Enabled')" id="card-foc-5" class="param-card text-left p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-violet-600 dark:text-violet-400 truncate">5. LOV Add%</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
+          </div>
+          <div class="mt-1.5 text-xl font-bold text-slate-800 dark:text-slate-100" id="count-foc-5">0</div>
+          <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate">_add Property</div>
+        </button>
       </div>
 
       <!-- SEARCH & FILTER TOOLBAR -->
@@ -456,6 +524,25 @@
     <span id="toastMessage">Notification</span>
   </div>
 
+  <!-- ROBOT MASCOT PROCESSING MODAL -->
+  <div id="robotModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-sm w-full mx-4 flex flex-col items-center text-center transform scale-95 transition-transform duration-200" id="robotModalCard">
+      <div class="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center text-3xl shadow-inner mb-4 relative">
+        <span id="robotEmoji" class="animate-bounce">🤖</span>
+        <span id="robotSubEmoji" class="absolute -bottom-1 -right-1 text-base">💭</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-base font-bold text-slate-900 dark:text-white">
+        <span id="robotTitle">Thinking</span>
+        <span class="inline-flex space-x-1 tracking-widest text-amber-500 font-extrabold text-lg" id="robotDots">
+          <span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>
+        </span>
+      </div>
+      <p id="robotMessage" class="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+        Analyzing Flexi components, scripts & REST APIs...
+      </p>
+    </div>
+  </div>
+
   <!-- CLIENT-SIDE APPLICATION DATA & ENGINE -->
   <script>
     // Complete Consolidated Findings Dataset for FUSION_PO_RECEIPT.json
@@ -511,6 +598,27 @@
       'C7: Deprecated APIs': {
         label: 'C7: Deprecated APIs',
         pill: 'bg-fuchsia-50 dark:bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-500/30'
+      },
+      // Focused 5-Point Checks
+      'API Limit Missing': {
+        label: '1. API Limit Missing',
+        pill: 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-500/30'
+      },
+      'Hardcoded API Version': {
+        label: '2. API Version',
+        pill: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+      },
+      'Hardcoded Literals': {
+        label: '3. Hardcoded Literals',
+        pill: 'bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-500/30'
+      },
+      'Explicit % in API Query': {
+        label: '4. Explicit % in Query',
+        pill: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30'
+      },
+      'LOV Add% Not Enabled': {
+        label: '5. LOV Add% Missing',
+        pill: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-500/30'
       }
     };
 
@@ -653,14 +761,48 @@
       showToast('Returned to home. Ready to import a screen.');
     }
 
+    function showRobotModal(title, message, emoji = '🤖', subEmoji = '💭') {
+      const modal = document.getElementById('robotModal');
+      const card = document.getElementById('robotModalCard');
+      if (!modal || !card) return;
+      document.getElementById('robotTitle').innerText = title;
+      document.getElementById('robotMessage').innerText = message;
+      document.getElementById('robotEmoji').innerText = emoji;
+      document.getElementById('robotSubEmoji').innerText = subEmoji;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      card.classList.remove('scale-95');
+      card.classList.add('scale-100');
+    }
+
+    function hideRobotModal() {
+      const modal = document.getElementById('robotModal');
+      const card = document.getElementById('robotModalCard');
+      if (!modal || !card) return;
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      card.classList.remove('scale-100');
+      card.classList.add('scale-95');
+    }
+
     function loadSampleScreen() {
-      currentFindings = [...DEFAULT_FINDINGS];
-      selectedParam = 'ALL';
-      showReviewView('FUSION_PO_RECEIPT.json');
-      updateCardCounts(currentFindings);
-      renderTable(currentFindings);
-      filterByParam('ALL');
-      showToast('Loaded sample: FUSION_PO_RECEIPT.json (' + currentFindings.length + ' findings)');
+      showRobotModal('Thinking', 'Loading sample screen definition...', '🤖', '⚡');
+      setTimeout(() => {
+        currentRawScreenJson = null;
+        currentLoadedFileName = 'FUSION_PO_RECEIPT';
+        if (currentReviewMode === 'focused') {
+          currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
+        } else {
+          currentFindings = [...DEFAULT_FINDINGS];
+        }
+        selectedParam = 'ALL';
+        showReviewView('FUSION_PO_RECEIPT');
+        updateCardCounts(currentFindings);
+        renderTable(currentFindings);
+        filterByParam('ALL');
+        hideRobotModal();
+        showToast('Loaded sample: FUSION_PO_RECEIPT (' + currentFindings.length + ' findings)');
+      }, 300);
     }
 
     // Drag and Drop handlers
@@ -695,22 +837,25 @@
     }
 
     function processUploadedFile(file) {
+      showRobotModal('Thinking', 'Parsing screen export: ' + file.name + '...', '🤖', '⚡');
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const json = JSON.parse(e.target.result);
-          if (file.name === 'FUSION_PO_RECEIPT.json') {
-            currentFindings = [...DEFAULT_FINDINGS];
-            selectedParam = 'ALL';
-            showReviewView(file.name);
-            updateCardCounts(currentFindings);
-            renderTable(currentFindings);
-            filterByParam('ALL');
-            showToast('Loaded ' + file.name + ': ' + currentFindings.length + ' curated issues');
-          } else {
-            analyzeScreen(json, file.name);
-          }
+          const pageId = extractPageId(json, file.name);
+          currentRawScreenJson = json;
+          currentLoadedFileName = pageId;
+
+          setTimeout(() => {
+            if (currentReviewMode === 'focused') {
+              analyzeFocused5Checks(json, pageId);
+            } else {
+              analyzeScreen(json, pageId);
+            }
+            hideRobotModal();
+          }, 350);
         } catch (err) {
+          hideRobotModal();
           alert('Invalid JSON file: ' + err.message);
         }
       };
@@ -721,6 +866,7 @@
       const getCount = (p) => items.filter(i => i.parameter === p).length;
       const getArchCount = () => items.filter(i => isArchParam(i.parameter)).length;
 
+      // Comprehensive Review Counts
       if (document.getElementById('count-ALL')) document.getElementById('count-ALL').innerText = items.length;
       if (document.getElementById('count-arch')) document.getElementById('count-arch').innerText = getArchCount();
       if (document.getElementById('count-c1')) document.getElementById('count-c1').innerText = getCount('C1: Hardcoding');
@@ -730,6 +876,14 @@
       if (document.getElementById('count-c5')) document.getElementById('count-c5').innerText = getCount('C5: Memory Lifecycle');
       if (document.getElementById('count-c6')) document.getElementById('count-c6').innerText = getCount('C6: Logging/Comments');
       if (document.getElementById('count-c7')) document.getElementById('count-c7').innerText = getCount('C7: Deprecated APIs');
+
+      // Focused 5-Point Audit Counts
+      if (document.getElementById('count-foc-ALL')) document.getElementById('count-foc-ALL').innerText = items.length;
+      if (document.getElementById('count-foc-1')) document.getElementById('count-foc-1').innerText = getCount('API Limit Missing');
+      if (document.getElementById('count-foc-2')) document.getElementById('count-foc-2').innerText = getCount('Hardcoded API Version');
+      if (document.getElementById('count-foc-3')) document.getElementById('count-foc-3').innerText = getCount('Hardcoded Literals');
+      if (document.getElementById('count-foc-4')) document.getElementById('count-foc-4').innerText = getCount('Explicit % in API Query');
+      if (document.getElementById('count-foc-5')) document.getElementById('count-foc-5').innerText = getCount('LOV Add% Not Enabled');
     }
 
     // Status Badge generator (OK / Needs Fix / Cannot Verify)
@@ -930,24 +1084,39 @@
       document.getElementById('filterParamSelect').value = paramName;
 
       document.querySelectorAll('.param-card').forEach(c => {
-        c.classList.remove('ring-2', 'ring-sky-500', 'border-sky-500', 'dark:border-sky-500', 'glow-active');
+        c.classList.remove('ring-2', 'ring-sky-500', 'ring-amber-500', 'border-sky-500', 'border-amber-500', 'dark:border-sky-500', 'dark:border-amber-500', 'glow-active');
         c.classList.add('border-slate-200', 'dark:border-slate-800');
       });
 
-      const activeCardId = (paramName === 'ALL') ? 'card-ALL' : (paramName === 'ARCH') ? 'card-arch' : 
-        (paramName.includes('C1')) ? 'card-c1' :
-        (paramName.includes('C2')) ? 'card-c2' :
-        (paramName.includes('C3')) ? 'card-c3' :
-        (paramName.includes('C4')) ? 'card-c4' :
-        (paramName.includes('C5')) ? 'card-c5' :
-        (paramName.includes('C6')) ? 'card-c6' :
-        (paramName.includes('C7')) ? 'card-c7' : null;
+      let activeCardId = null;
+      if (currentReviewMode === 'focused') {
+        if (paramName === 'ALL') activeCardId = 'card-foc-ALL';
+        else if (paramName === 'API Limit Missing') activeCardId = 'card-foc-1';
+        else if (paramName === 'Hardcoded API Version') activeCardId = 'card-foc-2';
+        else if (paramName === 'Hardcoded Literals') activeCardId = 'card-foc-3';
+        else if (paramName === 'Explicit % in API Query') activeCardId = 'card-foc-4';
+        else if (paramName === 'LOV Add% Not Enabled') activeCardId = 'card-foc-5';
+      } else {
+        if (paramName === 'ALL') activeCardId = 'card-ALL';
+        else if (paramName === 'ARCH') activeCardId = 'card-arch';
+        else if (paramName.includes('C1')) activeCardId = 'card-c1';
+        else if (paramName.includes('C2')) activeCardId = 'card-c2';
+        else if (paramName.includes('C3')) activeCardId = 'card-c3';
+        else if (paramName.includes('C4')) activeCardId = 'card-c4';
+        else if (paramName.includes('C5')) activeCardId = 'card-c5';
+        else if (paramName.includes('C6')) activeCardId = 'card-c6';
+        else if (paramName.includes('C7')) activeCardId = 'card-c7';
+      }
 
       if (activeCardId) {
         const activeCard = document.getElementById(activeCardId);
         if (activeCard) {
           activeCard.classList.remove('border-slate-200', 'dark:border-slate-800');
-          activeCard.classList.add('ring-2', 'ring-sky-500', 'border-sky-500', 'dark:border-sky-500', 'glow-active');
+          if (currentReviewMode === 'focused') {
+            activeCard.classList.add('ring-2', 'ring-amber-500', 'border-amber-500', 'dark:border-amber-500', 'glow-active');
+          } else {
+            activeCard.classList.add('ring-2', 'ring-sky-500', 'border-sky-500', 'dark:border-sky-500', 'glow-active');
+          }
         }
       }
 
@@ -1003,43 +1172,55 @@
     });
 
     function exportToCSV() {
-      const headers = ['Parameter', 'Status', 'Severity', 'File/Screen', 'Component/Field Name', 'Location', 'Issue Found / Audit Details', 'Suggested Fix / Action / Reset Snippet'];
-      const rows = currentFindings.map(item => [
-        item.parameter,
-        item.status,
-        item.severity,
-        item.file,
-        item.component,
-        item.location,
-        item.issue.replace(/"/g, '""'),
-        item.fix.replace(/"/g, '""')
-      ]);
+      showRobotModal('Downloading', 'Preparing consolidated CSV report...', '🤖', '📦');
+      setTimeout(() => {
+        const headers = ['Parameter', 'Status', 'Severity', 'File/Screen', 'Component/Field Name', 'Location', 'Issue Found / Audit Details', 'Suggested Fix / Action / Reset Snippet'];
+        const rows = currentFindings.map(item => [
+          item.parameter,
+          item.status,
+          item.severity,
+          item.file,
+          item.component,
+          item.location,
+          item.issue.replace(/"/g, '""'),
+          item.fix.replace(/"/g, '""')
+        ]);
 
-      const csvContent = [headers.join(','), ...rows.map(r => r.map(f => '"' + f + '"').join(','))].join('\n');
-      downloadBlob(csvContent, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.csv', 'text/csv;charset=utf-8;');
-      document.getElementById('exportMenu').classList.add('hidden');
-      showToast('Exported CSV!');
+        const csvContent = [headers.join(','), ...rows.map(r => r.map(f => '"' + f + '"').join(','))].join('\n');
+        downloadBlob(csvContent, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.csv', 'text/csv;charset=utf-8;');
+        document.getElementById('exportMenu').classList.add('hidden');
+        hideRobotModal();
+        showToast('Exported CSV!');
+      }, 350);
     }
 
     function exportToMarkdown() {
-      let md = '# Flexi Mobile Page Review Audit Report\n\n';
-      md += '| Parameter | Status (OK / Needs Fix / Cannot Verify) | Severity (High / Med / Low / Info) | File/Screen | Component/Field Name | Location (line no. / function / event / property) | Issue Found / Audit Details | Suggested Fix / Action / Reset Snippet |\n';
-      md += '| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n';
-      
-      currentFindings.forEach(item => {
-        md += `| ${item.parameter} | ${item.status} | ${item.severity} | ${item.file} | ${item.component} | ${item.location} | ${item.issue.replace(/\|/g, '\\|')} | ${item.fix.replace(/\|/g, '\\|')} |\n`;
-      });
+      showRobotModal('Downloading', 'Preparing single-table Markdown report...', '🤖', '📦');
+      setTimeout(() => {
+        let md = '# Flexi Mobile Page Review Audit Report\n\n';
+        md += '| Parameter | Status (OK / Needs Fix / Cannot Verify) | Severity (High / Med / Low / Info) | File/Screen | Component/Field Name | Location (line no. / function / event / property) | Issue Found / Audit Details | Suggested Fix / Action / Reset Snippet |\n';
+        md += '| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n';
+        
+        currentFindings.forEach(item => {
+          md += `| ${item.parameter} | ${item.status} | ${item.severity} | ${item.file} | ${item.component} | ${item.location} | ${item.issue.replace(/\|/g, '\\|')} | ${item.fix.replace(/\|/g, '\\|')} |\n`;
+        });
 
-      downloadBlob(md, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.md', 'text/markdown;charset=utf-8;');
-      document.getElementById('exportMenu').classList.add('hidden');
-      showToast('Exported Markdown Table!');
+        downloadBlob(md, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.md', 'text/markdown;charset=utf-8;');
+        document.getElementById('exportMenu').classList.add('hidden');
+        hideRobotModal();
+        showToast('Exported Markdown Table!');
+      }, 350);
     }
 
     function exportToJSON() {
-      const dataStr = JSON.stringify(currentFindings, null, 2);
-      downloadBlob(dataStr, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.json', 'application/json;charset=utf-8;');
-      document.getElementById('exportMenu').classList.add('hidden');
-      showToast('Exported JSON!');
+      showRobotModal('Downloading', 'Preparing JSON export...', '🤖', '📦');
+      setTimeout(() => {
+        const dataStr = JSON.stringify(currentFindings, null, 2);
+        downloadBlob(dataStr, 'Flexi_Code_Review_' + (document.getElementById('screenNameBadge').innerText || 'Export') + '.json', 'application/json;charset=utf-8;');
+        document.getElementById('exportMenu').classList.add('hidden');
+        hideRobotModal();
+        showToast('Exported JSON!');
+      }, 350);
     }
 
     function downloadBlob(content, filename, type) {
@@ -1083,6 +1264,8 @@
     // DYNAMIC STATIC ANALYSIS ENGINE: SECTION 1 (ARCH) + SECTION 2 (C1–C7)
     // =========================================================================
     function analyzeScreen(data, fileName) {
+      const pageId = extractPageId(data, fileName);
+      fileName = pageId;
       const newFindings = [];
       let count = 1;
 
@@ -1843,17 +2026,22 @@ function switchReviewMode(mode) {
       `;
     }
 
-    // Run dynamic analysis if raw JSON exists, otherwise load curated sample
-    if (currentRawScreenJson) {
-      analyzeFocused5Checks(currentRawScreenJson, currentLoadedFileName);
-    } else {
-      currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
-      selectedParam = 'ALL';
-      updateCardCounts(currentFindings);
-      renderTable(currentFindings);
-      filterByParam('ALL');
-    }
-    showToast('Switched to Focused 5-Point Static Analysis mode');
+    showRobotModal('Thinking', 'Analyzing 5 focused quality checks...', '🤖', '💭');
+    setTimeout(() => {
+      // Run dynamic analysis if raw JSON exists, otherwise load curated sample
+      if (currentRawScreenJson) {
+        analyzeFocused5Checks(currentRawScreenJson, currentLoadedFileName);
+      } else {
+        currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
+        selectedParam = 'ALL';
+        updateCardCounts(currentFindings);
+        renderTable(currentFindings);
+        filterByParam('ALL');
+      }
+      hideRobotModal();
+      showToast('Switched to Focused 5-Point Static Analysis mode');
+    }, 250);
+
   } else {
     if (btnComp) {
       btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-600 text-white shadow-sm';
@@ -1879,16 +2067,20 @@ function switchReviewMode(mode) {
       `;
     }
 
-    if (currentRawScreenJson) {
-      analyzeScreenExport(currentRawScreenJson, currentLoadedFileName);
-    } else {
-      currentFindings = [...DEFAULT_FINDINGS];
-      selectedParam = 'ALL';
-      updateCardCounts(currentFindings);
-      renderTable(currentFindings);
-      filterByParam('ALL');
-    }
-    showToast('Switched to Comprehensive Review mode (C1–C7 & Architecture)');
+    showRobotModal('Thinking', 'Running comprehensive architecture & code review (C1–C7)...', '🤖', '💭');
+    setTimeout(() => {
+      if (currentRawScreenJson) {
+        analyzeScreen(currentRawScreenJson, currentLoadedFileName);
+      } else {
+        currentFindings = [...DEFAULT_FINDINGS];
+        selectedParam = 'ALL';
+        updateCardCounts(currentFindings);
+        renderTable(currentFindings);
+        filterByParam('ALL');
+      }
+      hideRobotModal();
+      showToast('Switched to Comprehensive Review mode (C1–C7 & Architecture)');
+    }, 250);
   }
 }
 
@@ -1902,6 +2094,8 @@ function switchReviewMode(mode) {
 // 5. LOV Fields with "Add%" Not Enabled
 // =============================================================================
 function analyzeFocused5Checks(data, fileName) {
+  const pageId = extractPageId(data, fileName);
+  fileName = pageId;
   const newFindings = [];
   let count = 1;
 
