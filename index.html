@@ -703,6 +703,31 @@
       return false;
     }
 
+    // Check if WebService is actually invoked on screen via LOV binding or script callWebService
+    function isWsInvokedOnScreen(id, lovWsIds, scripts) {
+      if (lovWsIds && lovWsIds.has(id)) return true;
+      if (scripts && Array.isArray(scripts)) {
+        return scripts.some(s => {
+          const code = s.code || '';
+          return code.includes(id + '.callWebService');
+        });
+      }
+      return false;
+    }
+
+    // Check if WebService is a POST/mutation transaction service (not a query/GET search API)
+    function isWsPostOrMutation(ws) {
+      const p = (ws && ws.properties) ? ws.properties : {};
+      const op = (p._operationType || p._restOperation || p._operation || p._method || '').toUpperCase();
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(op)) return true;
+      const req = (p._request || '').trim();
+      if (req === '${PAYLOAD}' || req.includes('${PAYLOAD}') || req.startsWith('{') || req.startsWith('[')) return true;
+      const url = (p._wsurl || '');
+      if (/batch|receivingReceiptRequests|inventoryStagedTransactions|transactions|generateLots|generateSerialNumbers|Print/i.test(url)) return true;
+      if (p._contentType && p._contentType.includes('json') && !req.includes('q=')) return true;
+      return false;
+    }
+
     function isArchParam(p) {
       return p === 'API - Duplicate Check' || p === 'API - Usage/Unused' || p === 'API - Dynamic/Empty URL' || p === 'Field Dependency & Reset';
     }
@@ -1342,7 +1367,7 @@
       webServices.forEach(ws => {
         const id = ws.properties?.id || ws.properties?.name || 'WebService';
         const url = (ws.properties?._wsurl || '').trim();
-        const op = (ws.properties?._restOperation || 'GET').toUpperCase();
+        const op = (ws.properties?._operationType || ws.properties?._restOperation || 'GET').toUpperCase();
         wsUsageCount.set(id, 0);
 
         // Count LOV references
@@ -1502,19 +1527,22 @@
         const id = ws.properties?.id || ws.properties?.name || 'WebService';
         const url = ws.properties?._wsurl || '';
         const req = ws.properties?._request || '';
-        const op = ws.properties?._restOperation || 'GET';
+        const op = (ws.properties?._operationType || ws.properties?._restOperation || 'GET').toUpperCase();
         const isLov = lovWsIds.has(id);
-        const isAction = url.includes('generateLots') || url.includes('generateSerialNumbers') || url.includes('receivingReceiptRequests') || url.includes('Print') || url.includes('PrintLabel');
+        const isAction = isWsPostOrMutation(ws);
+        const isInvoked = isWsInvokedOnScreen(id, lovWsIds, scripts);
+        const isOrgMasterService = (id === 'ORG_BU_WEBSERVICE' || id === 'ORG_PARAM_WEBSERVICE' || /ORG_PARAM|ORG_BU/i.test(id));
 
-        if ((url.includes('receivingReceiptRequests') || url.includes('Print')) && op === 'GET') {
+        if ((url.includes('receivingReceiptRequests') || url.includes('Print')) && op === 'GET' && !isAction) {
           c2Count++;
           add('C2: API Structure', id, 'Properties (_restOperation)', 'HTTP Operation Mismatch: Configured as GET for transaction/print endpoint.', 'Explicitly set _restOperation to POST.', 'Needs Fix', 'High');
         }
 
-        if (!isAction && url) {
-          const limitMatch = req.match(/limit=(\d+)/i) || url.match(/limit=(\d+)/i);
+        // Only audit query structure (limit, onlyData, fields, orderBy) for active GET query services that are actually invoked on the screen
+        if (!isAction && url && isInvoked && !isOrgMasterService) {
+          const limitMatch = req.match(/limit\s*=\s*(\d+)/i) || url.match(/limit\s*=\s*(\d+)/i);
           const isLibraryOrLov = isWsPaginationHandledByLibraryOrLov(ws, id, scripts, lovWsIds);
-          // PROMPT EXCEPTION: Do NOT flag missing limit on LOV fields or services where library sets up limit/offset
+          // PROMPT EXCEPTION: Do NOT flag missing limit on LOV fields, master services, or where limit/offset is present
           if (!isLibraryOrLov && !limitMatch) {
             c2Count++;
             add('C2: API Structure', id, 'Properties (_request)', 'No Limit: Standalone backend API called without limit parameter. Fetches full unpaginated catalog data.', 'Add &limit=100 (or business limit).', 'Needs Fix', 'Med');
@@ -1553,17 +1581,22 @@
       lovs.forEach(lov => {
         const id = lov.properties?.id || lov.properties?.name || 'LOV';
         const smart = lov.properties?._smartSearch;
+        const addProp = lov.properties?._add;
+        const isAddEnabled = (addProp === true || addProp === 'true');
         const wsId = lov.properties?._webService;
         const ws = webServices.find(w => (w.properties?.id || w.properties?.name) === wsId);
 
         if (id === 'PROJECT_NUMBER' || id === 'TASK_NUMBER' || id === 'PROJECT_NUM' || id === 'TASK_NUM') return;
+        // Do not check query LIKE on LOVs without a bound WebService
+        if (!wsId || !ws) return;
 
         const reqStr = (ws?.properties?._request || '') + ' ' + (ws?.properties?._onCallingRequest || '') + ' ' + (lov.properties?._lovStatement || '');
         const hasLike = /\bLIKE\b/i.test(reqStr);
 
-        if (!smart && !hasLike) {
+        // If _add is enabled, smartSearch is true, or query has LIKE, search filtering is properly configured
+        if (!smart && !isAddEnabled && !hasLike) {
           c2Count++;
-          add('C2: API Structure', id, 'Properties', "Smart search is not enabled and underlying query lacks LIKE filter for LOV '" + id + "'.", 'Enable smart search on LOV or add LIKE prefix filter.', 'Needs Fix', 'Low');
+          add('C2: API Structure', id, 'Properties', "Smart search is not enabled and underlying query lacks LIKE filter for LOV '" + id + "'.", 'Enable _add (set "_add": true) on LOV or configure smart search.', 'Needs Fix', 'Low');
         }
       });
 
@@ -2149,22 +2182,36 @@ function analyzeFocused5Checks(data, fileName) {
   // CHECK 1: API LIMIT MISSING
   // Scope: every WebService component and every script-built REST call
   // EXCLUDE direct LOV fields (managed server-side by Flexi)
-  // EXCLUDE ORG_BU_WEBSERVICE
+  // EXCLUDE ORG_BU_WEBSERVICE, ORG_PARAM_WEBSERVICE (master org parameter services)
+  // EXCLUDE POST / mutation transaction APIs
+  // EXCLUDE uninvoked/unused WebServices
   // -----------------------------------------------------------------
   let check1Count = 0;
   webServices.forEach(ws => {
     const id = ws.properties?.id || ws.properties?.name || 'WebService';
-    if (id === 'ORG_BU_WEBSERVICE') {
-      add('API Limit Missing', id, 'Properties (_request)', 'Exempted from limit check per architectural rules (lookup master cache service).', 'None', 'OK', 'Info');
+    if (id === 'ORG_BU_WEBSERVICE' || id === 'ORG_PARAM_WEBSERVICE' || /ORG_PARAM|ORG_BU/i.test(id)) {
+      add('API Limit Missing', id, 'Properties (_request)', 'Exempted from limit check per architectural rules (lookup master cache / org parameter service).', 'None', 'OK', 'Info');
+      return;
+    }
+
+    const isPostOrMutation = isWsPostOrMutation(ws);
+    if (isPostOrMutation) {
+      add('API Limit Missing', id, 'Properties (_operationType)', 'POST/Mutation transaction API; pagination limits not applicable.', 'None', 'OK', 'Info');
+      return;
+    }
+
+    const isScriptCalled = scripts.some(s => s.code.includes(id + '.callWebService'));
+    const isDirectLov = lovBoundWsIds.has(id);
+    const isInvoked = isDirectLov || isScriptCalled;
+
+    if (!isInvoked) {
+      add('API Limit Missing', id, 'Definition', 'Unused WebService component; not invoked on screen.', 'None', 'OK', 'Info');
       return;
     }
 
     const url = (ws.properties?._wsurl || '').trim();
     const req = (ws.properties?._request || '').trim();
     const cleanUrl = url.split('?')[0].split(';')[0].replace(/\/+$/, '');
-
-    const isScriptCalled = scripts.some(s => s.code.includes(id + '.callWebService'));
-    const isDirectLov = lovBoundWsIds.has(id);
     const isLibraryHandled = isWsPaginationHandledByLibraryOrLov(ws, id, scripts, lovBoundWsIds);
 
     // EXCLUDE direct LOV fields if not called from script
@@ -2179,7 +2226,7 @@ function analyzeFocused5Checks(data, fileName) {
       return;
     }
 
-    const hasLimit = /limit=/i.test(req) || /limit=/i.test(url);
+    const hasLimit = /limit\s*=/i.test(req) || /limit\s*=/i.test(url);
     if (!hasLimit) {
       check1Count++;
       add('API Limit Missing', id, 'Properties (_request)', 'Missing limit= parameter in standalone REST API request. Normalized endpoint: ' + (cleanUrl || '(empty)') + '. Current query: ' + (req || '(empty)'), 'Add limit=50 (or appropriate business limit) to request parameters.', 'Needs Fix', 'Med');
@@ -2203,7 +2250,7 @@ function analyzeFocused5Checks(data, fileName) {
       const lines = s.code.split('\n');
       lines.forEach((line, lIdx) => {
         if (line.includes('_request') && line.includes('=') && !line.includes('limit=') && !line.includes('//')) {
-          if (!line.includes('ORG_BU_WEBSERVICE')) {
+          if (!line.includes('ORG_BU_WEBSERVICE') && !line.includes('ORG_PARAM_WEBSERVICE')) {
             check1Count++;
             add('API Limit Missing', s.compId, s.eventName + ' (line ' + (lIdx + 1) + ')', 'Script-assembled query string missing limit= parameter: ' + line.trim(), 'Add &limit=50 to the query string.', 'Needs Fix', 'Med');
           }
@@ -2293,25 +2340,45 @@ function analyzeFocused5Checks(data, fileName) {
   // -----------------------------------------------------------------
   // CHECK 4: EXPLICIT % IN API QUERY PARAMETERS
   // Scope: query strings of all WebService components and script queries
+  // EXCLUDE:
+  // - Parameter tokens like ${VAR}% when used on an LOV-bound WebService (user search input)
+  // - POST / mutation APIs
+  // - Unused/uninvoked WebServices
+  // Never suggest adding wildcard % to an API not bound to an LOV!
   // -----------------------------------------------------------------
   let check4Count = 0;
   webServices.forEach(ws => {
     const id = ws.properties?.id || ws.properties?.name || 'WebService';
+    if (isWsPostOrMutation(ws)) return;
+    if (!isWsInvokedOnScreen(id, lovBoundWsIds, scripts)) return;
+
     const req = (ws.properties?._request || '');
     const url = (ws.properties?._wsurl || '');
+    const isBoundToLov = lovBoundWsIds.has(id);
 
-    if (req.includes('%') || url.includes('%')) {
-      const match = req.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i) || url.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i);
-      const querySnippet = match ? match[0] : (req || url);
-      check4Count++;
-      add('Explicit % in API Query', id, 'Properties (_request)', 'Explicit % wildcard detected in REST query filter: ' + querySnippet + '. Fusion REST supports wildcard matching without explicit %; explicit % can cause full table scan on Fusion DB.', 'Remove explicit % wildcard or use prefix-only indexed token.', 'Needs Fix', 'Med');
+    if (isBoundToLov) {
+      const literalMatch = req.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i) || url.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i);
+      if (literalMatch) {
+        const token = literalMatch[0];
+        if (!/\${[A-Z0-9_]+}%/i.test(token)) {
+          check4Count++;
+          add('Explicit % in API Query', id, 'Properties (_request)', 'Explicit literal % wildcard detected in LOV query filter: ' + token + '. Can cause full table scan on Fusion DB.', 'Remove explicit % wildcard or use standard dynamic search parameter token.', 'Needs Fix', 'Med');
+        }
+      }
+    } else {
+      if (req.includes('%') || url.includes('%')) {
+        const match = req.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i) || url.match(/LIKE\s*['"][^'"]*%[^'"]*['"]/i) || req.match(/%/) || url.match(/%/);
+        const querySnippet = match ? match[0] : (req || url);
+        check4Count++;
+        add('Explicit % in API Query', id, 'Properties (_request)', 'Explicit % wildcard in standalone REST query filter: ' + querySnippet + '. Standalone APIs not bound to an LOV should use exact indexed match instead of % wildcard.', 'Remove explicit % wildcard to use exact match and avoid full table scan.', 'Needs Fix', 'Med');
+      }
     }
   });
 
   scripts.forEach(s => {
     if (s.code.includes('LIKE') && s.code.includes('%')) {
       const m = s.code.match(/LIKE\s+['"][^'"]*%[^'"]*['"]/i);
-      if (m) {
+      if (m && !/\${[A-Z0-9_]+}%/i.test(m[0])) {
         check4Count++;
         add('Explicit % in API Query', s.compId, s.eventName, 'Script-assembled LIKE query containing % wildcard: ' + m[0], 'Remove explicit % wildcard or use prefix-only indexed token.', 'Needs Fix', 'Med');
       }
@@ -2348,7 +2415,10 @@ function analyzeFocused5Checks(data, fileName) {
         const issueDetails = (addProp === false || addProp === 'false') ? 
           'Add% is disabled (_add is false). LOV does not append % prefix wildcard to search input.' :
           'Add% property _add is missing and bound query lacks prefix wildcard on LOV field token.';
-        add('LOV Add% Not Enabled', id, 'Properties (_add)', issueDetails + ' Bound WebService: ' + (wsId || '(none)') + '.', 'Enable _add (set "_add": true) on LOV component, or configure filter: q=<DisplayColumn> LIKE \'${THIS_FIELD}%\'', 'Needs Fix', 'Med');
+        const fixDetails = (wsId && boundWs) ?
+          'Enable _add (set "_add": true) on LOV component, or configure filter: q=<DisplayColumn> LIKE \'${THIS_FIELD}%\'' :
+          'Enable _add (set "_add": true) on LOV component.';
+        add('LOV Add% Not Enabled', id, 'Properties (_add)', issueDetails + (wsId ? (' Bound WebService: ' + wsId + '.') : ''), fixDetails, 'Needs Fix', 'Med');
       }
     }
   });
