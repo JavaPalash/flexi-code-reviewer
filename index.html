@@ -728,6 +728,40 @@
       return false;
     }
 
+    // Check if REST query passes specific field/entity identifiers (e.g. LotNumber, InventoryItemId, LpnId, etc.)
+    function isSpecificEntityOrFieldQuery(req, url, wsId) {
+      const q = ((req || '') + ' ' + (url || '')).toLowerCase();
+      const id = (wsId || '').toLowerCase();
+      const hasSpecificField = /lotnumber\s*(?:=|\blike\b)|inventoryitemid\s*=|itemnumber\s*(?:=|\blike\b)|serialnumber\s*(?:=|\blike\b)|ordernumber\s*=|headerid\s*=|lineid\s*=|linenumber\s*=|lpnid\s*=|lpn\s*(?:=|\blike\b)|transactionid\s*=|receiptheaderid\s*=|poheaderid\s*=|polineid\s*=/i.test(q);
+      const hasFieldToken = /\${(?:lot_number|lot_id|item_id|item_number|lpn_id|serial_number|serial_value|header_id|po_header_id|line_id|order_number|transaction_id|locator_id)}/i.test(q);
+      const isDetailService = /detail|_dtl|_info|lookup|validate/i.test(id);
+      return hasSpecificField || hasFieldToken || isDetailService;
+    }
+
+    // Oracle standard entity status, flag, and control attributes defined in Oracle Fusion SCM OpenAPI (SCM_26Copenapi.json)
+    const ORACLE_STANDARD_ATTRIBUTES = new Set([
+      'activelot', 'disabledcode', 'inventoryflag', 'usagecode', 'defaulttype',
+      'lpncontrol', 'linestatuscode', 'shipmentstatuscode', 'allocated', 'reserved',
+      'statuscode', 'statusid', 'contextcode', 'enabledflag', 'activeflag',
+      'cancelflag', 'holdflag', 'lockedflag', 'primaryflag', 'standardflag',
+      'defaultflag', 'systemflag', 'approvalstatus', 'headerstatuscode', 'itemstatus',
+      'receiptstatuscode', 'transactionstatus', 'validationstatus', 'lotcontrolcode',
+      'serialcontrolcode', 'locatorcontrolcode', 'dualuomflag', 'restframeworkversion',
+      'acceptlanguage', 'active', 'disabled', 'status', 'type', 'control'
+    ]);
+
+    // Standard REST query parameters to exclude from entity attribute checks
+    const ORACLE_REST_PARAMS = new Set(['limit', 'offset', 'onlydata', 'fields', 'expand', 'orderby', 'q', 'totalresults']);
+
+    function isOracleStandardStatusOrFlag(attrName) {
+      if (!attrName) return false;
+      const lower = attrName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (ORACLE_REST_PARAMS.has(lower)) return true;
+      if (ORACLE_STANDARD_ATTRIBUTES.has(lower)) return true;
+      if (/flag$|code$|status$|type$|control$|allocated|reserved|activelot|disabled/i.test(attrName)) return true;
+      return false;
+    }
+
     function isArchParam(p) {
       return p === 'API - Duplicate Check' || p === 'API - Usage/Unused' || p === 'API - Dynamic/Empty URL' || p === 'Field Dependency & Reset';
     }
@@ -1495,13 +1529,20 @@
           }
         }
 
-        if (req.includes("LineStatusCode='Y'") || req.includes('LineStatusCode="Y"')) {
-          c1Count++;
-          add('C1: Hardcoding', id, 'Properties (_request)', "LineStatusCode='Y' literal filter without explaining comment.", 'Centralize in a named constant or document code meaning in _description.', 'Needs Fix', 'Med');
-        }
-        if (req.includes('ShipmentStatusCode=OP') || req.includes("ShipmentStatusCode='OP'")) {
-          c1Count++;
-          add('C1: Hardcoding', id, 'Properties (_request)', 'ShipmentStatusCode=OP literal filter unexplained.', 'Add documentation explaining OP = Open.', 'Needs Fix', 'Low');
+        // Check literal filters: ignore standard Oracle Fusion SCM status/flag attributes
+        let qFilter = req;
+        const qMatch = req.match(/q=([^&;]+)/i);
+        if (qMatch) qFilter = qMatch[1];
+
+        const literalMatches = qFilter.matchAll(/([a-zA-Z0-9_]+)\s*(?:=|!=|<>)\s*(?:'([^']+)'|"([^"]+)"|([0-9]+))/gi);
+        for (const m of literalMatches) {
+          const attr = m[1];
+          const val = m[2] || m[3] || m[4];
+          if (val && !val.startsWith('${') && !isOracleStandardStatusOrFlag(attr)) {
+            c1Count++;
+            add('C1: Hardcoding', id, 'Properties (_request)', "Query filter contains literal value '" + val + "' for attribute " + attr + " not identified as standard Oracle API status flag.", "Please check; not sure, please check the logic.", 'Cannot Verify', 'Low');
+            break;
+          }
         }
       });
 
@@ -1542,10 +1583,16 @@
         if (!isAction && url && isInvoked && !isOrgMasterService) {
           const limitMatch = req.match(/limit\s*=\s*(\d+)/i) || url.match(/limit\s*=\s*(\d+)/i);
           const isLibraryOrLov = isWsPaginationHandledByLibraryOrLov(ws, id, scripts, lovWsIds);
+          const isEntityLookup = isSpecificEntityOrFieldQuery(req, url, id);
+
           // PROMPT EXCEPTION: Do NOT flag missing limit on LOV fields, master services, or where limit/offset is present
           if (!isLibraryOrLov && !limitMatch) {
             c2Count++;
-            add('C2: API Structure', id, 'Properties (_request)', 'No Limit: Standalone backend API called without limit parameter. Fetches full unpaginated catalog data.', 'Add &limit=100 (or business limit).', 'Needs Fix', 'Med');
+            if (isEntityLookup) {
+              add('C2: API Structure', id, 'Properties (_request)', 'REST query filters by specific field/entity identifiers. Standalone request without explicit limit; result size depends on business cardinality.', 'Please check once if the limit is okay or not; verification depends on business logic.', 'Cannot Verify', 'Low');
+            } else {
+              add('C2: API Structure', id, 'Properties (_request)', 'No Limit: Standalone backend API called without limit parameter. Fetches full unpaginated catalog data.', 'Add &limit=100 (or business limit).', 'Needs Fix', 'Med');
+            }
           } else if (limitMatch) {
             const val = parseInt(limitMatch[1], 10);
             if (val >= 500) {
@@ -1571,7 +1618,7 @@
             add('C2: API Structure', id, 'Properties (_request)', "Malformed filter query string ending with dangling ';' separator.", 'Remove trailing semicolon from filter parameters.', 'Needs Fix', 'Med');
           }
 
-          if ((/orderBy=/i.test(req) || /orderBy=/i.test(url)) && !req.includes('limit=1')) {
+          if ((/orderBy=/i.test(req) || /orderBy=/i.test(url)) && !req.includes('limit=1') && !isEntityLookup) {
             c2Count++;
             add('C2: API Structure', id, 'Properties (_request)', 'orderBy clause present on multi-row query. May cause database sort performance penalties on large tables.', 'Confirm if ordering is necessary, or ensure index exists on sorted column.', 'Needs Fix', 'Med');
           }
@@ -2227,11 +2274,16 @@ function analyzeFocused5Checks(data, fileName) {
     }
 
     const hasLimit = /limit\s*=/i.test(req) || /limit\s*=/i.test(url);
-    if (!hasLimit) {
+    const isEntityLookup = isSpecificEntityOrFieldQuery(req, url, id);
+
+    if (hasLimit) {
+      add('API Limit Missing', id, 'Properties (_request)', 'REST API specifies explicit limit parameter.', 'None', 'OK', 'Info');
+    } else if (isEntityLookup) {
+      check1Count++;
+      add('API Limit Missing', id, 'Properties (_request)', 'REST query filters by specific field/entity identifiers (e.g. ' + id + ' query parameters). Standalone request without explicit limit; result size depends on business cardinality.', 'Please check once if the limit is okay or not; verification depends on business logic.', 'Cannot Verify', 'Low');
+    } else {
       check1Count++;
       add('API Limit Missing', id, 'Properties (_request)', 'Missing limit= parameter in standalone REST API request. Normalized endpoint: ' + (cleanUrl || '(empty)') + '. Current query: ' + (req || '(empty)'), 'Add limit=50 (or appropriate business limit) to request parameters.', 'Needs Fix', 'Med');
-    } else {
-      add('API Limit Missing', id, 'Properties (_request)', 'REST API specifies explicit limit parameter.', 'None', 'OK', 'Info');
     }
   });
 
@@ -2319,7 +2371,7 @@ function analyzeFocused5Checks(data, fileName) {
 
       if (val === 'APPROVED' || val === 'CLOSED' || val === 'OP' || val === 'Y') {
         check3Count++;
-        add('Hardcoded Literals', s.compId, s.eventName, 'Unexplained inline business/status code literal: \'' + val + '\' without constant or explanatory comment.', 'Define as named constant or add explanatory comment.', 'Needs Fix', 'Low');
+        add('Hardcoded Literals', s.compId, s.eventName, 'Inline entity/business status code literal: \'' + val + '\'. Verify whether this corresponds to standard Oracle Fusion lookup/status code or custom logic.', 'Please check; not sure, please check the logic.', 'Cannot Verify', 'Low');
         break;
       }
     }
@@ -2328,9 +2380,20 @@ function analyzeFocused5Checks(data, fileName) {
   webServices.forEach(ws => {
     const id = ws.properties?.id || ws.properties?.name || 'WebService';
     const req = (ws.properties?._request || '');
-    if (req.includes("LineStatusCode='Y'") || req.includes('LineStatusCode="Y"')) {
-      check3Count++;
-      add('Hardcoded Literals', id, 'Properties (_request)', "Literal filter LineStatusCode='Y' without explaining comment.", "Define as named constant or document code meaning.", 'Needs Fix', 'Low');
+    // Standard Oracle SCM OpenAPI attributes (e.g. ActiveLot, DisabledCode, InventoryFlag, UsageCode, DefaultType, LPNControl, LineStatusCode, ShipmentStatusCode, Allocated, Reserved) are excluded per OpenAPI spec.
+    let qFilter = req;
+    const qMatch = req.match(/q=([^&;]+)/i);
+    if (qMatch) qFilter = qMatch[1];
+
+    const literalMatches = qFilter.matchAll(/([a-zA-Z0-9_]+)\s*(?:=|!=|<>)\s*(?:'([^']+)'|"([^"]+)"|([0-9]+))/gi);
+    for (const m of literalMatches) {
+      const attr = m[1];
+      const val = m[2] || m[3] || m[4];
+      if (val && !val.startsWith('${') && !isOracleStandardStatusOrFlag(attr)) {
+        check3Count++;
+        add('Hardcoded Literals', id, 'Properties (_request)', "Query filter contains literal value '" + val + "' for attribute " + attr + " not identified as standard Oracle API status flag.", 'Please check; not sure, please check the logic.', 'Cannot Verify', 'Low');
+        break;
+      }
     }
   });
 
