@@ -96,14 +96,16 @@
 
         <!-- Review Mode Switcher -->
         <div class="inline-flex items-center p-1 rounded-xl bg-[#F5EFE0] dark:bg-slate-800 border border-[#E5DDCB] dark:border-slate-700">
-          <button id="modeBtnComprehensive" onclick="switchReviewMode('comprehensive')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#213061] text-white border border-[#1A264E] shadow-sm" title="Comprehensive Review: Architecture (Duplicate APIs, Resets) & C1–C7 Standards">
+          <button id="modeBtnComprehensive" onclick="switchReviewMode('comprehensive')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#213061] text-white border border-[#1A264E] shadow-sm ring-2 ring-[#213061]/30" title="Comprehensive Review: Architecture (Duplicate APIs, Resets) & C1–C7 Standards">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
             <span>Comprehensive (C1–C7)</span>
+            <span id="badgeModeComp" class="text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-white/20 text-white font-extrabold border border-white/30">Active</span>
           </button>
-          <button id="modeBtnFocused" onclick="switchReviewMode('focused')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-[#213061] hover:text-[#F07B1F] dark:text-slate-400 dark:hover:text-white" title="Focused 5-Point Static Analysis: API Limit, Version, Literals, %, LOV Add%">
+          <button id="modeBtnFocused" onclick="switchReviewMode('focused')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-[#213061] hover:text-[#F07B1F] dark:text-slate-300 dark:hover:text-white" title="Focused 5-Point Static Analysis: API Limit, Version, Literals, %, LOV Add%">
             <svg class="w-3.5 h-3.5 text-[#F07B1F]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
             <span>Focused 5-Point Audit</span>
             <span class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full bg-[#FFF3E6] text-[#F07B1F] border border-[#FED7AA]">5 Checks</span>
+            <span id="badgeModeFoc" class="hidden text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-white/20 text-white font-extrabold border border-white/30">Active</span>
           </button>
         </div>
 
@@ -250,6 +252,34 @@
 
     <!-- 2. REVIEW DASHBOARD VIEW (Shown when a screen is imported) -->
     <div id="reviewDashboardView" class="hidden flex-1 flex flex-col space-y-4">
+
+      <!-- ACTIVE REVIEW MODE STATUS BANNER -->
+      <div id="reviewModeBanner" class="w-full rounded-2xl p-3 sm:p-3.5 bg-[#FFFDF4] dark:bg-slate-900 border border-[#E5DDCB] dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all">
+        <div class="flex items-center gap-3">
+          <div id="modeBannerIconBox" class="w-10 h-10 rounded-xl bg-[#213061] text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <svg id="modeBannerIcon" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#78615E] dark:text-slate-400">Active Review Mode:</span>
+              <span id="modeBannerTitle" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#213061] text-white shadow-xs inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Comprehensive Review (C1–C7 & Architecture)
+              </span>
+            </div>
+            <p id="modeBannerSubtitle" class="text-xs text-[#78615E] dark:text-slate-400 mt-0.5">
+              Results below reflect Architecture & Data Flow (Duplicate APIs, Resets) and C1–C7 Code Standards.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <span class="text-xs font-semibold text-[#78615E] dark:text-slate-400">Evaluated By:</span>
+          <span id="modeBannerSourceBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#E8F4FA] text-[#147EA8] border border-[#BAE0F5] shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-[#189CD6] animate-pulse"></span>
+            <span id="modeBannerSourceText">Comprehensive C1–C7 Engine</span>
+          </span>
+        </div>
+      </div>
 
       <!-- METRICS & PARAMETERS CAROUSEL/GRID (Section 1 + C1 to C7) -->
       <div id="paramCardsComprehensive" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
@@ -459,7 +489,12 @@
             <option value="Info">Info</option>
           </select>
 
-          <!-- Showing count badge -->
+          <!-- Active Mode Tag & Showing count badge -->
+          <span id="tableModeBadge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#213061] text-white shadow-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Comprehensive (C1–C7) Results
+          </span>
+
           <span class="text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap pl-1">
             Showing <span id="visibleRowCount" class="text-[#F07B1F] dark:text-amber-400 font-semibold">0</span>
           </span>
@@ -525,7 +560,7 @@
   </div>
 
   <!-- ROBOT MASCOT PROCESSING MODAL -->
-  <div id="robotModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+  <div id="robotModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="handleRobotModalBackdropClick(event)">
     <div class="bg-[#FFFDF4] dark:bg-slate-900 rounded-2xl shadow-2xl border border-[#E5DDCB] dark:border-slate-800 p-6 max-w-sm w-full mx-4 flex flex-col items-center text-center transform scale-95 transition-transform duration-200" id="robotModalCard">
       <div class="w-16 h-16 rounded-2xl bg-[#FFF3E6] dark:bg-amber-500/10 border border-[#FED7AA] dark:border-amber-500/20 flex items-center justify-center text-3xl shadow-inner mb-4 relative">
         <span id="robotEmoji" class="animate-bounce">🤖</span>
@@ -540,6 +575,19 @@
       <p id="robotMessage" class="text-xs text-[#78615E] dark:text-slate-400 mt-2 text-center">
         Analyzing Flexi components, scripts & REST APIs...
       </p>
+
+      <!-- Interactive Action Buttons (Shown when asking user to upload JSON first) -->
+      <div id="robotModalActions" class="hidden mt-5 w-full flex flex-col sm:flex-row items-center justify-center gap-2.5">
+        <button type="button" onclick="triggerUploadFromModal()" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-[#F07B1F] hover:bg-[#D96A14] text-white border border-[#E06D16] shadow-md shadow-[#F07B1F]/20 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Import Screen JSON
+        </button>
+        <button type="button" onclick="hideRobotModal()" class="w-full sm:w-auto inline-flex items-center justify-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#FAF5E8] hover:bg-[#F2E8D5] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#78615E] dark:text-slate-300 border border-[#E5DDCB] dark:border-slate-700 transition">
+          Dismiss
+        </button>
+      </div>
     </div>
   </div>
 
@@ -804,10 +852,13 @@
       
       document.getElementById('exportDropdownContainer').classList.remove('hidden');
       document.getElementById('screenNameBadge').innerText = screenName;
+      updateReviewModeUI(currentReviewMode);
     }
 
     function resetToHome() {
       showHomeView();
+      currentRawScreenJson = null;
+      currentLoadedFileName = '';
       currentFindings = [];
       const f1 = document.getElementById('uploadInput');
       if (f1) f1.value = '';
@@ -817,6 +868,7 @@
       document.getElementById('filterParamSelect').value = 'ALL';
       const fs = document.getElementById('filterStatusSelect'); if (fs) fs.value = 'ALL';
       const fsev = document.getElementById('filterSeveritySelect'); if (fsev) fsev.value = 'ALL';
+      updateReviewModeUI(currentReviewMode);
       showToast('Returned to home. Ready to import a screen.');
     }
 
@@ -828,10 +880,49 @@
       document.getElementById('robotMessage').innerText = message;
       document.getElementById('robotEmoji').innerText = emoji;
       document.getElementById('robotSubEmoji').innerText = subEmoji;
+      const dots = document.getElementById('robotDots');
+      const actions = document.getElementById('robotModalActions');
+      if (dots) dots.classList.remove('hidden');
+      if (actions) actions.classList.add('hidden');
       modal.classList.remove('opacity-0', 'pointer-events-none');
       modal.classList.add('opacity-100');
       card.classList.remove('scale-95');
       card.classList.add('scale-100');
+    }
+
+    function showUploadRequiredModal(mode) {
+      const modal = document.getElementById('robotModal');
+      const card = document.getElementById('robotModalCard');
+      if (!modal || !card) return;
+      
+      const modeLabel = (mode === 'focused') ? 'Focused 5-Point Audit' : 'Comprehensive Review (C1–C7)';
+      document.getElementById('robotTitle').innerText = 'Upload JSON File First';
+      document.getElementById('robotMessage').innerText = 'Please upload a Flexi screen export (.json) first to run ' + modeLabel + '.';
+      document.getElementById('robotEmoji').innerText = '🤖';
+      document.getElementById('robotSubEmoji').innerText = '💭';
+      
+      const dots = document.getElementById('robotDots');
+      const actions = document.getElementById('robotModalActions');
+      if (dots) dots.classList.add('hidden');
+      if (actions) actions.classList.remove('hidden');
+      
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      card.classList.remove('scale-95');
+      card.classList.add('scale-100');
+    }
+
+    function triggerUploadFromModal() {
+      hideRobotModal();
+      const input = document.getElementById('homeFileInput') || document.getElementById('uploadInput');
+      if (input) input.click();
+    }
+
+    function handleRobotModalBackdropClick(event) {
+      const actions = document.getElementById('robotModalActions');
+      if (actions && !actions.classList.contains('hidden') && event.target.id === 'robotModal') {
+        hideRobotModal();
+      }
     }
 
     function hideRobotModal() {
@@ -842,13 +933,19 @@
       modal.classList.add('opacity-0', 'pointer-events-none');
       card.classList.remove('scale-100');
       card.classList.add('scale-95');
+      setTimeout(() => {
+        const dots = document.getElementById('robotDots');
+        const actions = document.getElementById('robotModalActions');
+        if (dots) dots.classList.remove('hidden');
+        if (actions) actions.classList.add('hidden');
+      }, 200);
     }
 
     function loadSampleScreen() {
       showRobotModal('Thinking', 'Loading sample screen definition...', '🤖', '⚡');
       setTimeout(() => {
-        currentRawScreenJson = null;
-        currentLoadedFileName = 'FUSION_PO_RECEIPT';
+        currentRawScreenJson = { _isSample: true, name: 'FUSION_PO_RECEIPT' };
+        currentLoadedFileName = 'FUSION_PO_RECEIPT.json';
         if (currentReviewMode === 'focused') {
           currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
         } else {
@@ -856,6 +953,7 @@
         }
         selectedParam = 'ALL';
         showReviewView('FUSION_PO_RECEIPT');
+        updateReviewModeUI(currentReviewMode);
         updateCardCounts(currentFindings);
         renderTable(currentFindings);
         filterByParam('ALL');
@@ -906,6 +1004,7 @@
           currentLoadedFileName = pageId;
 
           setTimeout(() => {
+            updateReviewModeUI(currentReviewMode);
             if (currentReviewMode === 'focused') {
               analyzeFocused5Checks(json, pageId);
             } else {
@@ -2072,29 +2171,61 @@ const FOCUSED_5_SAMPLE_FINDINGS = [
 // Active Review Mode state: 'comprehensive' | 'focused'
 let currentReviewMode = 'comprehensive';
 let currentRawScreenJson = null;
-let currentLoadedFileName = 'FUSION_PO_RECEIPT.json';
+let currentLoadedFileName = '';
 
-// Function to switch between Comprehensive (C1-C7) and Focused 5-Point Audit modes
-function switchReviewMode(mode) {
-  currentReviewMode = mode;
-
+function updateReviewModeUI(mode) {
   const btnComp = document.getElementById('modeBtnComprehensive');
   const btnFoc = document.getElementById('modeBtnFocused');
+  const badgeComp = document.getElementById('badgeModeComp');
+  const badgeFoc = document.getElementById('badgeModeFoc');
+
+  const bannerTitle = document.getElementById('modeBannerTitle');
+  const bannerSubtitle = document.getElementById('modeBannerSubtitle');
+  const bannerIconBox = document.getElementById('modeBannerIconBox');
+  const bannerSourceBadge = document.getElementById('modeBannerSourceBadge');
+  const bannerSourceText = document.getElementById('modeBannerSourceText');
+  const tableModeBadge = document.getElementById('tableModeBadge');
+
   const cardsComp = document.getElementById('paramCardsComprehensive');
   const cardsFoc = document.getElementById('paramCardsFocused');
   const paramSelect = document.getElementById('filterParamSelect');
 
   if (mode === 'focused') {
     if (btnFoc) {
-      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#F07B1F] text-white border border-[#D96A14] shadow-sm';
+      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#F07B1F] text-white border border-[#D96A14] shadow-md ring-2 ring-[#F07B1F]/30';
     }
     if (btnComp) {
-      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-[#213061] hover:text-[#F07B1F] dark:text-slate-400 dark:hover:text-white';
+      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-[#213061] hover:text-[#F07B1F] dark:text-slate-300 dark:hover:text-white';
     }
+    if (badgeComp) badgeComp.classList.add('hidden');
+    if (badgeFoc) badgeFoc.classList.remove('hidden');
+
     if (cardsComp) cardsComp.classList.add('hidden');
     if (cardsFoc) cardsFoc.classList.remove('hidden');
 
-    // Update filter dropdown for Focused 5-Point mode
+    // Dashboard Banner updates
+    if (bannerTitle) {
+      bannerTitle.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#F07B1F] text-white shadow-sm inline-flex items-center gap-1.5';
+      bannerTitle.innerHTML = '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg> Focused 5-Point Static Audit';
+    }
+    if (bannerSubtitle) {
+      bannerSubtitle.innerText = 'Results below reflect strictly the 5 Focused Quality Checks: API Limits, Versions, Literals, %, and LOV Add%.';
+    }
+    if (bannerIconBox) {
+      bannerIconBox.className = 'w-10 h-10 rounded-xl bg-[#FFF3E6] border border-[#FED7AA] text-[#F07B1F] flex items-center justify-center flex-shrink-0 shadow-sm';
+      bannerIconBox.innerHTML = '<svg class="w-5 h-5 text-[#F07B1F]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>';
+    }
+    if (bannerSourceBadge) {
+      bannerSourceBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#FFF3E6] text-[#D96A14] border border-[#FED7AA] shadow-xs';
+    }
+    if (bannerSourceText) {
+      bannerSourceText.innerText = 'Focused 5-Point Engine';
+    }
+    if (tableModeBadge) {
+      tableModeBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F07B1F] text-white shadow-xs';
+      tableModeBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Focused 5-Point Audit Results';
+    }
+
     if (paramSelect) {
       paramSelect.innerHTML = `
         <option value="ALL">All Focused Checks (5)</option>
@@ -2105,34 +2236,42 @@ function switchReviewMode(mode) {
         <option value="LOV Add% Not Enabled">5. LOV Add% Not Enabled</option>
       `;
     }
-
-    showRobotModal('Thinking', 'Analyzing 5 focused quality checks...', '🤖', '💭');
-    setTimeout(() => {
-      // Run dynamic analysis if raw JSON exists, otherwise load curated sample
-      if (currentRawScreenJson) {
-        analyzeFocused5Checks(currentRawScreenJson, currentLoadedFileName);
-      } else {
-        currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
-        selectedParam = 'ALL';
-        updateCardCounts(currentFindings);
-        renderTable(currentFindings);
-        filterByParam('ALL');
-      }
-      hideRobotModal();
-      showToast('Switched to Focused 5-Point Static Analysis mode');
-    }, 250);
-
   } else {
     if (btnComp) {
-      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#213061] text-white border border-[#1A264E] shadow-sm';
+      btnComp.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#213061] text-white border border-[#1A264E] shadow-md ring-2 ring-[#213061]/30';
     }
     if (btnFoc) {
-      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-[#213061] hover:text-[#213061] dark:text-slate-400 dark:hover:text-white';
+      btnFoc.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-[#213061] hover:text-[#F07B1F] dark:text-slate-300 dark:hover:text-white';
     }
+    if (badgeComp) badgeComp.classList.remove('hidden');
+    if (badgeFoc) badgeFoc.classList.add('hidden');
+
     if (cardsComp) cardsComp.classList.remove('hidden');
     if (cardsFoc) cardsFoc.classList.add('hidden');
 
-    // Update filter dropdown for Comprehensive mode
+    // Dashboard Banner updates
+    if (bannerTitle) {
+      bannerTitle.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#213061] text-white shadow-sm inline-flex items-center gap-1.5';
+      bannerTitle.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Comprehensive Review (C1–C7 & Architecture)';
+    }
+    if (bannerSubtitle) {
+      bannerSubtitle.innerText = 'Results below reflect Architecture & Data Flow (Duplicate APIs, Resets) and C1–C7 Code Standards.';
+    }
+    if (bannerIconBox) {
+      bannerIconBox.className = 'w-10 h-10 rounded-xl bg-[#213061] text-white flex items-center justify-center flex-shrink-0 shadow-sm';
+      bannerIconBox.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>';
+    }
+    if (bannerSourceBadge) {
+      bannerSourceBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#E8F4FA] text-[#147EA8] border border-[#BAE0F5] shadow-xs';
+    }
+    if (bannerSourceText) {
+      bannerSourceText.innerText = 'Comprehensive C1–C7 Engine';
+    }
+    if (tableModeBadge) {
+      tableModeBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#213061] text-white shadow-xs';
+      tableModeBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Comprehensive (C1–C7) Results';
+    }
+
     if (paramSelect) {
       paramSelect.innerHTML = `
         <option value="ALL">All Parameters (Consolidated)</option>
@@ -2146,18 +2285,54 @@ function switchReviewMode(mode) {
         <option value="C7: Deprecated APIs">C7: Deprecated APIs</option>
       `;
     }
+  }
+}
 
-    showRobotModal('Thinking', 'Running comprehensive architecture & code review (C1–C7)...', '🤖', '💭');
+// Function to switch between Comprehensive (C1-C7) and Focused 5-Point Audit modes
+function switchReviewMode(mode) {
+  currentReviewMode = mode;
+  updateReviewModeUI(mode);
+
+  if (!currentRawScreenJson) {
+    // If no screen JSON is uploaded yet (or after reset/refresh), do not display sample findings!
+    // Prompt the user to upload their JSON first using the mascot modal with 🤖 💭
+    showUploadRequiredModal(mode);
+    return;
+  }
+
+  // Handle sample screen if deliberately loaded via "Load Sample" button
+  if (currentRawScreenJson && currentRawScreenJson._isSample) {
+    showRobotModal('Thinking', mode === 'focused' ? 'Analyzing 5 focused quality checks...' : 'Running comprehensive architecture & code review (C1–C7)...', '🤖', '💭');
     setTimeout(() => {
-      if (currentRawScreenJson) {
-        analyzeScreen(currentRawScreenJson, currentLoadedFileName);
+      if (mode === 'focused') {
+        currentFindings = [...FOCUSED_5_SAMPLE_FINDINGS];
       } else {
         currentFindings = [...DEFAULT_FINDINGS];
-        selectedParam = 'ALL';
-        updateCardCounts(currentFindings);
-        renderTable(currentFindings);
-        filterByParam('ALL');
       }
+      selectedParam = 'ALL';
+      showReviewView('FUSION_PO_RECEIPT');
+      updateReviewModeUI(mode);
+      updateCardCounts(currentFindings);
+      renderTable(currentFindings);
+      filterByParam('ALL');
+      hideRobotModal();
+      showToast(mode === 'focused' ? 'Switched to Focused 5-Point Static Analysis mode' : 'Switched to Comprehensive Review mode (C1–C7 & Architecture)');
+    }, 250);
+    return;
+  }
+
+  if (mode === 'focused') {
+    showRobotModal('Thinking', 'Analyzing 5 focused quality checks...', '🤖', '💭');
+    setTimeout(() => {
+      analyzeFocused5Checks(currentRawScreenJson, currentLoadedFileName);
+      hideRobotModal();
+      showToast('Switched to Focused 5-Point Static Analysis mode');
+    }, 250);
+
+  } else {
+    showRobotModal('Thinking', 'Running comprehensive architecture & code review (C1–C7)...', '🤖', '💭');
+    setTimeout(() => {
+      analyzeScreen(currentRawScreenJson, currentLoadedFileName);
       hideRobotModal();
       showToast('Switched to Comprehensive Review mode (C1–C7 & Architecture)');
     }, 250);
@@ -2500,8 +2675,9 @@ function analyzeFocused5Checks(data, fileName) {
 }
 
 
-        // Initialize Theme & Default to Home / Import View
+    // Initialize Theme, Mode UI & Default to Home / Import View
     updateThemeUI(document.documentElement.classList.contains('dark'));
+    updateReviewModeUI('comprehensive');
     showHomeView();
   </script>
 </body>
